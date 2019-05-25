@@ -1,7 +1,7 @@
 {
-    "name": "quicksale",
+    "name": "starktouch",
     "version": "1.0.0",
-    "description": "QuickSale is a POS technology that is simple to use, forward thinking, and scalable.",
+    "description": "StarkTouch is a POS technology that is simple to use, forward thinking, and scalable.",
     "main": "main.js",
     "scripts": {
         "start": "electron .",

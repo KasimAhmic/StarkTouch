@@ -9,7 +9,7 @@ function createWindow () {
     win = new BrowserWindow({
         width: 1800,
         height: 950,
-        title: 'QuickSale POS',
+        title: 'StarkTouch POS',
         alwaysOnTop: true,
         webPreferences: {
             nodeIntegration: true
