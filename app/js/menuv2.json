@@ -1,0 +1,195 @@
+{
+    "Sandwiches": [
+        {
+            "name": "Regular Hamburger",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Double Hamburger",
+            "image": "",
+            "price": "$3.99"
+        },
+        {
+            "name": "Triple Hamburger",
+            "image": "",
+            "price": "$5.99"
+        },
+        {
+            "name": "Regular Cheeseburger",
+            "image": "",
+            "price": "$3.49"
+        },
+        {
+            "name": "Double Cheeseburger",
+            "image": "",
+            "price": "$4.49"
+        },
+        {
+            "name": "Triple Cheeseburger",
+            "image": "",
+            "price": "$6.49"
+        },
+        {
+            "name": "Chicken Sandwich",
+            "image": "",
+            "price": "$3.49"
+        },
+        {
+            "name": "Spicy Chicken Sandwich",
+            "image": "",
+            "price": "$3.49"
+        },
+        {
+            "name": "Fish Sandwich",
+            "image": "",
+            "price": "$3.99"
+        },
+        {
+            "name": "Sloppy Joe",
+            "image": "",
+            "price": "$5.49"
+        }
+    ],
+    "Sides": [
+        {
+            "name": "Small French Fries",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Medium French Fries",
+            "image": "",
+            "price": "$3.99"
+        },
+        {
+            "name": "Large French Fries",
+            "image": "",
+            "price": "$4.49"
+        },
+        {
+            "name": "Small Onion Rings",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Medium Onion Rings",
+            "image": "",
+            "price": "$3.99"
+        },
+        {
+            "name": "Large Onion Rings",
+            "image": "",
+            "price": "$4.49"
+        },
+        {
+            "name": "Small Salad",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Medium Salad",
+            "image": "",
+            "price": "$3.99"
+        },
+        {
+            "name": "Large Salad",
+            "image": "",
+            "price": "$4.49"
+        }
+    ],
+    "Desserts": [
+        {
+            "name": "Chocolate Cake - One Slice",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Chocolate Cake - Two Slices",
+            "image": "",
+            "price": "$3.99"
+        },
+        {
+            "name": "Chocolate Cake - Three Slices",
+            "image": "",
+            "price": "$4.99"
+        },
+        {
+            "name": "Cheese Cake - One Slice",
+            "image": "",
+            "price": "$3.49"
+        },
+        {
+            "name": "Cheese Cake - Two Slices",
+            "image": "",
+            "price": "$4.49"
+        },
+        {
+            "name": "Cheese Cake - Three Slices",
+            "image": "",
+            "price": "$5.49"
+        },
+        {
+            "name": "Small Ice Cream",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Medium Ice Cream",
+            "image": "",
+            "price": "$3.99"
+        },
+        {
+            "name": "Large Ice Cream",
+            "image": "",
+            "price": "$4.99"
+        }
+    ],
+    "Drinks": [
+        {
+            "name": "Small Fountain Drink",
+            "image": "",
+            "price": "$1.99"
+        },
+        {
+            "name": "Medium Fountain Drink",
+            "image": "",
+            "price": "$2.49"
+        },
+        {
+            "name": "Large Fountain Drink",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Small Iced Tea",
+            "image": "",
+            "price": "$2.49"
+        },
+        {
+            "name": "Medium Iced Tea",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Large Iced Tea",
+            "image": "",
+            "price": "$3.49"
+        },
+        {
+            "name": "Small Sweet Tea",
+            "image": "",
+            "price": "$2.49"
+        },
+        {
+            "name": "Medium Sweet Tea",
+            "image": "",
+            "price": "$2.99"
+        },
+        {
+            "name": "Large Sweet Tea",
+            "image": "",
+            "price": "$3.49"
+        }
+    ]
+}
