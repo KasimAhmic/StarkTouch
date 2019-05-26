@@ -63,7 +63,7 @@ function updateCart() {
 
     for (var i = 0; i < shoppingCart.length; i ++) {
         // Entry Wrapper
-        entryContainer = document.createElement('div');
+        entryContainer = document.createElement('li');
         entryContainer.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
         // Remove Button
         removeButton = document.createElement('button');
@@ -99,6 +99,7 @@ function removeFromCart(name, index) {
 
 function updateTotals() {
     [subtotal, tax, total] = calculateTotals();
+    console.log('Subtotal: $' + subtotal + ' | Tax: $' + tax + ' | Total: $' + total);
 }
 
 function calculateTotals() {
