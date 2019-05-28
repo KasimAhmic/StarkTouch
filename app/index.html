@@ -5,41 +5,21 @@
         <title>StarkTouch POS</title>
 
         <link rel="stylesheet" href="css/index.css">
-        <!--<link rel="stylesheet" href="../avengersstyle.css">-->
     </head>
     <body>
-        <header>
-            <nav id="categories">
-                <!--Populated via createCategories() in index.js -->
-            </nav>
-        </header>
         <main>
-            <!--Populated via createMenu() in index.js -->
+            <div id="categories">
+                    <!--Populated via createCategoryButtons() in index.js -->
+            </div>
             <div id="items">
-
+                    <!-- Populated via createItemButtons() in index.js -->
             </div>
             <div class="shopping_cart">
-                <h1>Shopping Cart</h1>
                 <ul id="cart">
-                    <!--Populated by addToCart() in index.js -->
+                    <!-- Populated by addToCart() in index.js -->
                 </ul>
-                <button>Checkout</button>
             </div>
         </main>
-        <!--
-        <div class="column c80">
-            <section id="categories">
-
-            </section>
-            <section id="items">
-
-            </section>
-        </div>
-        <div class="column c20">
-            <ul id="cart">
-
-            </ul>
-        </div>-->
     <script src="js/index.js"></script>
     </body>
 </html>
