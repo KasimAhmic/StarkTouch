@@ -10,13 +10,13 @@
         "dist": "electron-builder"
     },
     "author": "Kasim Ahmic",
-    "license": "MIT",
+    "license": "AGPL-3.0",
     "dependencies": {},
     "devDependencies": {
         "electron": "^5.0.1"
     },
     "build": {
-        "appId": "com.avengers.starkpoint",
+        "appId": "com.avengers.starktouch",
         "mac": {
             "category": "public.app-category.utilities"
         }

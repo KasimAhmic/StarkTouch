@@ -1,0 +1,11 @@
+{
+    "global": {
+        "menuFile": "./menuv2.json"
+    },
+    "kiosk": {
+        "currentTab": "0"
+    },
+    "server": {
+
+    }
+}
