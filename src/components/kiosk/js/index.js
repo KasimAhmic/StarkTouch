@@ -1,14 +1,14 @@
+// Electron
+const { ipcRenderer } = require('electron');
+
 // Global Variables
 var menu;
-var config = {
-    currentTab: 'Sandwiches',
-    menuFile: './js/menuv2.json'
-}
+var config;
 var shoppingCart = [];
 
 // Main Functions
 function init() {
-    menu = require(config.menuFile);
+    [config, menu] = ipcRenderer.sendSync('config-menu');
     createCategoryButtons();
 }
 
@@ -17,10 +17,10 @@ function createCategoryButtons() {
 
     for (i = 0; i < categories.length; i++) {
         var button = document.createElement('button');
-            button.textContent = categories[i];
-            button.dataset.category = categories[i];
+            button.textContent = menu[String(i)].name;
+            button.dataset.category = Object.keys(menu)[i];
             button.addEventListener("click", function() {
-                config.currentTab = this.dataset.category;
+                config.kiosk.currentTab = this.dataset.category;
                 createItemButtons();
             });
         document.getElementById('categories').appendChild(button);
@@ -28,11 +28,12 @@ function createCategoryButtons() {
 }
 
 function createItemButtons() {
+    var currentTab = Object.values(config.kiosk.currentTab);
     var itemDiv = document.getElementById('items');
     itemDiv.innerHTML = '';
 
-    for (i = 0; i < menu[config.currentTab].length; i++) {
-        var item = menu[config.currentTab][i];
+    for (i = 0; i < menu[currentTab].items.length; i++) {
+        var item = menu[currentTab].items[i];
         var itemButton = document.createElement('div');
             itemButton.dataset.item = item.name;
             itemButton.className = 'itemButton';
@@ -46,7 +47,7 @@ function createItemButtons() {
 }
 
 function addToCart(itemIndex) {
-    var item = menu[config.currentTab][itemIndex];
+    var item = menu[config.kiosk.currentTab].items[itemIndex];
 
     shoppingCart.push(item);
     updateCart();
