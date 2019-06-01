@@ -1,5 +1,6 @@
 // Electron
 const { ipcRenderer } = require('electron');
+var request = require("request");
 
 // Global Variables
 var menu;
@@ -49,6 +50,7 @@ function createItemButtons() {
 
 function addToCart(itemIndex) {
     var item = menu[config.kiosk.currentTab].items[itemIndex];
+    item['type'] = menu[config.kiosk.currentTab].name;
 
     shoppingCart.push(item);
     updateCart();
@@ -119,8 +121,6 @@ function calculateTotals() {
 }
 
 function submitOrder(cart) {
-    console.log(cart)
-    var request = require("request");
     var options = {
         method: 'POST',
         url: 'http://127.0.0.1:3000/submitOrder',
@@ -135,14 +135,34 @@ function submitOrder(cart) {
         },
         form: {
             cart: JSON.stringify(cart),
-            name: 'Kasim',
-            orderNumber: '599'
+            name: 'Kasim'
         }
     };
 
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
         console.log(body);
+    });
+}
+
+function getOrderNumber(callback) {
+    var options = {
+        method: 'GET',
+        url: 'http://127.0.0.1:3000/getOrderNumber',
+        headers: {
+            'cache-control': 'no-cache',
+            Connection: 'keep-alive',
+            'accept-encoding': 'gzip, deflate',
+            Host: '127.0.0.1:3000',
+            'Cache-Control': 'no-cache',
+            Accept: '*/*',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    };
+
+    request(options, function(error, response, body) {
+        if (error) throw new Error(error);
+        return callback(body);
     });
 }
 
