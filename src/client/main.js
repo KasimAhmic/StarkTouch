@@ -13,13 +13,11 @@ function createWindow () {
         width: 1800,
         height: 950,
         title: 'StarkTouch POS',
-        alwaysOnTop: true,
         webPreferences: {
             nodeIntegration: true
         },
         autoHideMenuBar: true,
-        show: false,
-        frame: false
+        show: false
     });
 
     ipcMain.on('config-menu', (event) => {
