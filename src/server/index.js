@@ -19,7 +19,7 @@ app.post('/submitOrder', function(req, res) {
     var name = req.body.name;
     var orderNumber = req.body.orderNumber;
 
-    res.set('Content-Type', 'text/plain');
+    //res.set('Content-Type', 'text/plain');
     res.send(`Thank you ${name}! Your order number is ${orderNumber} and will be ready shortly!`);
 });
 
