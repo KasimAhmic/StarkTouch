@@ -10,17 +10,15 @@ app.use(bodyParser.urlencoded({
     extended: false
 }));
 
-app.get('/getOrderNumber', function(req, res) {
-    res.send(generateOrderNumber());
-});
-
 app.post('/submitOrder', function(req, res) {
-    var cart = req.body.cart;
-    var name = req.body.name;
-    var orderNumber = req.body.orderNumber;
+    var order = {
+        "name": req.body.name,
+        "orderNumber": generateOrderNumber()
+    }
 
-    //res.set('Content-Type', 'text/plain');
-    res.send(`Thank you ${name}! Your order number is ${orderNumber} and will be ready shortly!`);
+    //res.send(`Thank you ${name}! Your order number is ${orderNumber} and will be ready shortly!`);
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(order));
 });
 
 app.listen(3000, function(err) {
@@ -32,6 +30,16 @@ app.listen(3000, function(err) {
 });
 
 function generateOrderNumber() {
+    /*
+     * This function needs to query the size of a table that stores order information. It simply needs to get the number of entires
+     * and modulo it by 999 to get the current order number. The 999 comes from a rotating limit of 1000 orders per day. The database
+     * will store orders using an auto incrementing primary key and the order number stored in the database will be used almost
+     * exclussively for the customer knowing which order is their's.
+     * 
+     * Example:
+     * If table size is 576, 657 % 999 = 576 so the order number is 576
+     * If table size is 8945, 8945 % 999 = 953 so the order number is 953
+     */
     if ((database + 1) > 999) {
         database = 1;
         return String(database);

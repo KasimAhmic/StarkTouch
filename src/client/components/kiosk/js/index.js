@@ -6,7 +6,6 @@ var request = require("request");
 var menu;
 var config;
 var shoppingCart = [];
-var server = 'http://127.0.0.1:3000/submitOrder';
 
 // Main Functions
 function init() {
@@ -104,6 +103,14 @@ function removeFromCart(name, index) {
 function updateTotals() {
     [subtotal, tax, total] = calculateTotals();
     console.log('Subtotal: $' + subtotal + ' | Tax: $' + tax + ' | Total: $' + total);
+
+    /*
+     * This function will be responsible for updating the values in the shopping cart to reflect the changes the customer has made 
+     * to the cart.
+     * 
+     * Example:
+     * document.getElementById('cartSubtotal').textContent = '$' + subtotal;
+     */
 }
 
 function calculateTotals() {
@@ -120,13 +127,7 @@ function calculateTotals() {
     return [subtotal.toFixed(2), tax.toFixed(2), total.toFixed(2)];
 }
 
-function parseData(val) {
-    return val;
-}
-
 function submitOrder(cart) {
-    var orderNum = getOrderNumber(parseData);
-    console.log(orderNum)
     var options = {
         method: 'POST',
         url: 'http://127.0.0.1:3000/submitOrder',
@@ -141,47 +142,37 @@ function submitOrder(cart) {
         },
         form: {
             cart: JSON.stringify(cart),
-            name: 'Kasim',
-            orderNum: orderNum
+            name: 'Kasim'
         }
     };
 
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
         console.log(body);
+
+        /*
+         * The variable "body" contains a stringified JSON response from the server giving the keys "name" and "orderNumber" and their
+         * respective values. Upon submitting the order, this function will also display a message thanking the customer by name and 
+         * giving them their order number.
+         * 
+         * Example:
+         * "Thank you body.name! Your order number is body.orderNumber and will be ready shortly!"
+         */
     });
 }
 
-function getOrderNumber(callback) {
-    var options = {
-        method: 'GET',
-        url: 'http://127.0.0.1:3000/getOrderNumber'//,
-        //headers: {
-        //    'cache-control': 'no-cache',
-        //    Connection: 'keep-alive',
-        //    'accept-encoding': 'gzip, deflate',
-        //    Host: '127.0.0.1:3000',
-        //    'Cache-Control': 'no-cache',
-        //    Accept: '*/*',
-        //    'Content-Type': 'application/x-www-form-urlencoded'
-        //}
-    };
-
-    //request(options, function(error, response, body) {
-    //    if (error) throw new Error(error);
-    //    return callback(body);
-    //});
-    //return request(options, callback);
-    
-    request('http://127.0.0.1:3000/getOrderNumber', function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            result = JSON.stringify(JSON.parse(body));          
-            return callback(result, false);
-        } else {            
-            return callback(null, error);;
-        }
-    });
-}
+// Leave this function for educational purposes
+//function getOrderNumber() {
+//    return new Promise((resolve, reject) => {
+//        request('http://127.0.0.1:3000/getOrderNumber', (error, response, body) => {
+//            if (error) reject(error);
+//            if (response.statusCode != 200) {
+//                reject('Invalid status code <' + response.statusCode + '>');
+//            }
+//            resolve(body);
+//        });
+//    });
+//}
 
 // Helper Functions
 function capitalize(str) {
