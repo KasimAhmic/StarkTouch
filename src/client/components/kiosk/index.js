@@ -9,7 +9,8 @@ var shoppingCart = [];
 
 // Main Functions
 function init() {
-    [config, menu] = ipcRenderer.sendSync('config-menu');
+    config = ipcRenderer.sendSync('request-config');
+    menu = ipcRenderer.sendSync('request-menu');
     createCategoryButtons();
 }
 
@@ -105,8 +106,8 @@ function updateTotals() {
     console.log('Subtotal: $' + subtotal + ' | Tax: $' + tax + ' | Total: $' + total);
 
     /*
-     * This function will be responsible for updating the values in the shopping cart to reflect the changes the customer has made 
-     * to the cart.
+     * This function will be responsible for updating the values in the shopping cart to reflect the changes the customer has made  to the 
+     * cart.
      * 
      * Example:
      * document.getElementById('cartSubtotal').textContent = '$' + subtotal;
@@ -130,16 +131,7 @@ function calculateTotals() {
 function submitOrder(cart) {
     var options = {
         method: 'POST',
-        url: 'http://127.0.0.1:3000/submitOrder',
-        headers: {
-            'cache-control': 'no-cache',
-            Connection: 'keep-alive',
-            'accept-encoding': 'gzip, deflate',
-            Host: '127.0.0.1:3000',
-            'Cache-Control': 'no-cache',
-            Accept: '*/*',
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
+        url: 'http://18.191.208.177:3000/submitOrder',
         form: {
             cart: JSON.stringify(cart),
             name: 'Kasim'
@@ -152,8 +144,8 @@ function submitOrder(cart) {
 
         /*
          * The variable "body" contains a stringified JSON response from the server giving the keys "name" and "orderNumber" and their
-         * respective values. Upon submitting the order, this function will also display a message thanking the customer by name and 
-         * giving them their order number.
+         * respective values. Upon submitting the order, this function will also display a message thanking the customer by name and  giving
+         * them their order number.
          * 
          * Example:
          * "Thank you body.name! Your order number is body.orderNumber and will be ready shortly!"

@@ -5,7 +5,9 @@ const { ipcMain } = require('electron');
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 let configFile = require('./config.json');
-const menuFile = require(configFile.global.menuFile);
+let menuFile = require(configFile.global.menuFile);
+
+var debug = false;
 
 function createWindow () {
     // Create the browser window.
@@ -20,19 +22,26 @@ function createWindow () {
         show: false
     });
 
-    ipcMain.on('config-menu', (event) => {
-        event.returnValue = [configFile, menuFile];
+    // Create event handlers for component requests
+    ipcMain.on('request-config', (event) => {
+        event.returnValue = configFile;
+    });
+    ipcMain.on('request-menu', (event) => {
+        event.returnValue = menuFile;
     });
 
-    // and load the index.html of the app.
-    win.loadFile('components/kiosk/index.html');
+    // Load index.html file of configured component
+    win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
 
+    // Show window once all assets are loaded
     win.once('ready-to-show', () => {
         win.show();
     })
 
-    // Open the DevTools.
-    win.webContents.openDevTools();
+    // Open the DevTools
+    if (debug) {
+        win.webContents.openDevTools();
+    }
 
     // Emitted when the window is closed.
     win.on('closed', () => {

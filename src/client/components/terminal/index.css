@@ -1,0 +1,33 @@
+html, body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    padding: 0;
+}
+header {
+    height: 40px;
+    border-bottom: 1px solid #666;
+    box-sizing: border-box;
+}
+header * {
+    margin: 0;
+}
+main {
+    height: calc(100% - 40px);
+    font-size: 0;
+}
+.order-column {
+    display: inline-block;
+    width: 12.5%;
+    height: 100%;
+    border-right: 1px solid #666;
+    box-sizing: border-box;
+}
+.order-column:last-child {
+    border: none;
+}
+.order-number {
+    height: 80px;
+    border-bottom: 1px solid #666;
+}
