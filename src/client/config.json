@@ -1,9 +1,13 @@
 {
     "global": {
-        "menuFile": "./menuv2.json"
+        "menuFile": "./menuv2.json",
+        "componentToLaunch": "terminal"
     },
     "kiosk": {
         "currentTab": "0"
+    },
+    "terminal": {
+        "maxColumns": 8
     },
     "server": {
 
