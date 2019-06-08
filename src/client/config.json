@@ -1,7 +1,9 @@
 {
     "global": {
         "menuFile": "./menuv2.json",
-        "componentToLaunch": "terminal"
+        "componentToLaunch": "kiosk",
+        "orderProgressFile": "./orderProgress.json",
+        "orderReadyFile": "./orderReady.json"
     },
     "kiosk": {
         "currentTab": "0"
