@@ -7,7 +7,12 @@ let win;
 let configFile = require('./config.json');
 let menuFile = require(configFile.global.menuFile);
 
-var debug = false;
+// Temporary JSON order files. To be replaced with database queries
+let orderProgressFile = require(configFile.global.orderProgressFile);
+let orderReadyFile = require(configFile.global.orderReadyFile);
+
+// Chrome debug boolean
+var debug = true;
 
 function createWindow () {
     // Create the browser window.
@@ -28,6 +33,14 @@ function createWindow () {
     });
     ipcMain.on('request-menu', (event) => {
         event.returnValue = menuFile;
+    });
+    ipcMain.on('request-debug', (event) => {
+        event.returnValue = debug;
+    });
+
+    // TO BE REMOVED - Legacy event handler
+    ipcMain.on('config-order', (event) => {
+        event.returnValue = [configFile, orderProgressFile, orderReadyFile];
     });
 
     // Load index.html file of configured component

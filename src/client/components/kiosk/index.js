@@ -7,8 +7,21 @@ var menu;
 var config;
 var shoppingCart = [];
 
+// Debug
+var dubug;
+
 // Main Functions
 function init() {
+    debug = ipcRenderer.sendSync('request-debug');
+    if (debug) {
+        var debugButton = document.createElement('button');
+            debugButton.className = 'debug';
+            debugButton.textContent = 'Reload';
+            debugButton.addEventListener('click', function() {
+                location.reload();
+            });
+        document.body.appendChild(debugButton);
+    }
     config = ipcRenderer.sendSync('request-config');
     menu = ipcRenderer.sendSync('request-menu');
     createCategoryButtons();

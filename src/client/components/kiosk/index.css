@@ -48,3 +48,9 @@ ul {
     list-style-type: none;
     padding-left: 10px;
 }
+
+.debug {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+}

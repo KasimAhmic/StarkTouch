@@ -1,0 +1,82 @@
+@charset "UTF-8";
+
+/* Styles used to match original concept design for consolidation screen */
+body {
+    width: 100%;
+    font-family: Helvetica;
+    background-color: #f2f2f2
+}
+#column-1 {
+    width: 50%;
+    height: 100%;
+    float: left;
+    display: inline-block;
+    border: 1px solid #999999;
+}
+
+#column-2 {
+    width: 50%;
+    height: 100%;
+    float: right;
+    display: inline-block;
+    border: 1px solid #999999;
+}
+
+.title {
+    text-align: center;
+    font-size: 65px;
+    background-color: #29ABE2;
+    color: white;
+    line-height: 144px;
+    border: 1px solid #999999;
+}
+
+.order {
+    width: 50%;
+    float: left;
+    display: inline-block;
+}
+
+.name {
+    width: 50%;
+    float: right;
+    display: inline-block;
+}
+
+#order {
+    text-align: center;
+    font-size: 35px;
+    background-color: #CCCCCC;
+    line-height: 72px;
+    border: 1px solid #999999;
+}
+
+#name {
+    text-align: center;
+    font-size: 35px;
+    background-color: #CCCCCC;
+    line-height: 72px;
+    border: 1px solid #999999;
+}
+
+.order-list {
+    width: 100%;
+    text-align: center;
+    border: 1px solid #999999;
+}
+
+.name-list {
+    width: 100%;
+    text-align: center;
+    border: 1px solid #999999;
+}
+
+.order-list > ul li {
+    font-size: 25px;
+    line-height: 48px;
+}
+
+.name-list > ul li {
+    font-size: 25px;
+    line-height: 48px;
+}
