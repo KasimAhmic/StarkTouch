@@ -1,6 +1,5 @@
 // Electron
 const { ipcRenderer } = require('electron');
-var request = require("request");
 
 // Global Variables
 var menu;
@@ -146,6 +145,7 @@ function removeFromCart(name, index) {
 function updateTotals() {
     [subtotal, tax, total] = calculateTotals();
     console.log('Subtotal: $' + subtotal + ' | Tax: $' + tax + ' | Total: $' + total);
+    shoppingCart.total = total;
 
     /*
      * This function will be responsible for updating the values in the shopping cart to reflect the changes the customer has made to the 
@@ -171,31 +171,13 @@ function calculateTotals() {
 }
 
 function submitOrder(cart) {
-    var options = {
-        method: 'POST',
-        url: 'http://18.191.208.177:3000/submitOrder',
-        form: {
-            cart: JSON.stringify(cart),
-            name: 'Kasim'
-        }
-    };
-
-    ipcRenderer.sendSync('submitOrder', shoppingCart);
-
-    request(options, function (error, response, body) {
-        if (error) throw new Error(error);
-        console.log(body);
-
-        /*
-         * The variable "body" contains a stringified JSON response from the server giving the keys "name" and "orderNumber" and their
-         * respective values. Upon submitting the order, this function will also display a message thanking the customer by name and giving
-         * them their order number.
-         * 
-         * Example:
-         * "Thank you body.name! Your order number is body.orderNumber and will be ready shortly!"
-         */
-    });
+    [subtotal, tax, total] = calculateTotals();
+    ipcRenderer.send('submitOrder', cart, total);
 }
+
+ipcRenderer.on('submitOrderResponse', (event, res) => {
+    console.log(res)
+});
 
 // Leave this function for educational purposes
 //function getOrderNumber() {

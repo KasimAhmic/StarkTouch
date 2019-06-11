@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+var mysql = require('mysql');
 
 const app = express();
 
@@ -14,12 +15,29 @@ app.use(bodyParser.urlencoded({
 app.post('/submitOrder', function(req, res) {
     var order = {
         "name": req.body.name,
-        "orderNumber": generateOrderNumber()
+        "orderNumber": generateOrderNumber(),
+        "cart": req.body.cart,
+        "total": req.body.total
     }
     console.log(JSON.stringify(order))
 
     //res.send(`Thank you ${name}! Your order number is ${orderNumber} and will be ready shortly!`);
     res.setHeader('Content-Type', 'application/json');
+
+    var con = mysql.createConnection({
+    });
+
+    con.connect(function(err) {
+        if (err) throw err;
+
+        var sql = "INSERT INTO order_stats (restaurant_id, order_date, dine_in, order_code, total_cost) VALUES ('1', curdate(), '1', '" + (database % 999) + "', '" + order.total + "');";
+
+        con.query(sql, function (err, result) {
+            if (err) throw err;
+            console.log("Table created");
+        });
+    });
+
     res.end(JSON.stringify(order));
 });
 

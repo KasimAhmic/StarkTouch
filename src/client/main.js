@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const { ipcMain } = require('electron');
 var mysql = require('mysql');
+var request = require('request');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -78,20 +79,32 @@ ipcMain.on('load-menu', (event) => {
 ipcMain.on('request-debug', (event) => {
     event.returnValue = debug;
 });
-ipcMain.on('submitOrder', (event, cart) => {
-    var con = mysql.createConnection({
-    });
+ipcMain.on('submitOrder', (event, cart, total) => {
+    var options = {
+        method: 'POST',
+        url: 'http://18.191.208.177:3000/submitOrder',
+        form: {
+            cart: JSON.stringify(cart),
+            name: 'Kasim',
+            total: total
+        }
+    };
 
-    con.connect(function(err) {
-        if (err) throw err;
+    request(options, function (error, response, body) {
+        if (error) {
+            throw new Error(error);
+        }
+        console.log(body);
+        event.reply('submitOrderResponse', body);
 
-        var sql = "INSERT INTO order_stats (restaurant_id, order_date, dine_in, order_code, total_cost) VALUES ('1', curdate(), '1', '13', '11.99')";
-
-        con.query(sql, function(err, result) {
-            if (err) throw err;
-            console.log("1 record inserted")
-            event.returnValue = '1 record inserted'
-        })
+        /*
+         * The variable "body" contains a stringified JSON response from the server giving the keys "name" and "orderNumber" and their
+         * respective values. Upon submitting the order, this function will also display a message thanking the customer by name and giving
+         * them their order number.
+         * 
+         * Example:
+         * "Thank you body.name! Your order number is body.orderNumber and will be ready shortly!"
+         */
     });
 });
 
