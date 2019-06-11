@@ -44,12 +44,26 @@ function createWindow () {
     });
 
     // Load index.html file of configured component
-    win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
+    if (configFile.global.componentToLaunch == 'kiosk') {
+        win.loadFile('components/' + configFile.global.componentToLaunch + '/welcome.html');
+    }
+    else {
+        win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
+    }
 
     // Show window once all assets are loaded
     win.once('ready-to-show', () => {
         win.show();
     })
+
+    // Create event handlers for new page requests
+    ipcMain.on('load-settings', (event) => {
+        // NOT DONE YET
+        win.loadFile('components/kiosk/settings.html');
+    });
+    ipcMain.on('load-menu', (event) => {
+        win.loadFile('components/kiosk/index.html');
+    });
 
     // Open the DevTools
     if (debug) {
