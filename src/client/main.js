@@ -28,6 +28,8 @@ function createWindow () {
         show: false
     });
 
+    //win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
+
     // Load index.html file of configured component
     if (configFile.global.componentToLaunch == 'kiosk') {
         win.loadFile('components/' + configFile.global.componentToLaunch + '/welcome.html');
@@ -40,15 +42,6 @@ function createWindow () {
     win.once('ready-to-show', () => {
         win.show();
     })
-
-    // Create event handlers for new page requests
-    ipcMain.on('load-settings', (event) => {
-        // NOT DONE YET
-        win.loadFile('components/kiosk/settings.html');
-    });
-    ipcMain.on('load-menu', (event) => {
-        win.loadFile('components/kiosk/index.html');
-    });
 
     // Open the DevTools
     if (debug) {
@@ -71,6 +64,17 @@ ipcMain.on('request-config', (event) => {
 ipcMain.on('request-menu', (event) => {
     event.returnValue = menuFile;
 });
+// Create event handlers for new page requests
+ipcMain.on('load-settings', (event) => {
+    // NOT DONE YET
+    win.loadFile('components/kiosk/settings.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-menu', (event) => {
+    win.loadFile('components/kiosk/index.html');
+    event.returnValue = null;
+});
+
 ipcMain.on('request-debug', (event) => {
     event.returnValue = debug;
 });
@@ -82,7 +86,7 @@ ipcMain.on('submitOrder', (event, cart) => {
         if (err) throw err;
 
         var sql = "INSERT INTO order_stats (restaurant_id, order_date, dine_in, order_code, total_cost) VALUES ('1', curdate(), '1', '13', '11.99')";
-        
+
         con.query(sql, function(err, result) {
             if (err) throw err;
             console.log("1 record inserted")
