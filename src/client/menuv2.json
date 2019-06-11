@@ -4,7 +4,7 @@
         "items": [
             {
                 "name": "Regular Hamburger",
-                "image": "",
+                "image": "https://www.seriouseats.com/recipes/images/2015/07/20150728-homemade-whopper-food-lab-35.jpg",
                 "price": "$2.99",
                 "modifiers": [
                     "Pickels",
@@ -14,27 +14,27 @@
             },
             {
                 "name": "Double Hamburger",
-                "image": "",
+                "image": "https://www.seriouseats.com/recipes/images/2015/07/20150728-homemade-whopper-food-lab-35.jpg",
                 "price": "$3.99"
             },
             {
                 "name": "Triple Hamburger",
-                "image": "",
+                "image": "https://www.seriouseats.com/recipes/images/2015/07/20150728-homemade-whopper-food-lab-35.jpg",
                 "price": "$5.99"
             },
             {
                 "name": "Regular Cheeseburger",
-                "image": "",
+                "image": "https://www.seriouseats.com/recipes/images/2015/07/20150728-homemade-whopper-food-lab-35.jpg",
                 "price": "$3.49"
             },
             {
                 "name": "Double Cheeseburger",
-                "image": "",
+                "image": "https://www.seriouseats.com/recipes/images/2015/07/20150728-homemade-whopper-food-lab-35.jpg",
                 "price": "$4.49"
             },
             {
                 "name": "Triple Cheeseburger",
-                "image": "",
+                "image": "https://www.seriouseats.com/recipes/images/2015/07/20150728-homemade-whopper-food-lab-35.jpg",
                 "price": "$6.49"
             },
             {
@@ -113,34 +113,14 @@
         "name": "Desserts",
         "items": [
             {
-                "name": "Chocolate Cake - One Slice",
+                "name": "Chocolate Cake",
                 "image": "",
                 "price": "$2.99"
             },
             {
-                "name": "Chocolate Cake - Two Slices",
-                "image": "",
-                "price": "$3.99"
-            },
-            {
-                "name": "Chocolate Cake - Three Slices",
-                "image": "",
-                "price": "$4.99"
-            },
-            {
-                "name": "Cheese Cake - One Slice",
+                "name": "Cheese Cake",
                 "image": "",
                 "price": "$3.49"
-            },
-            {
-                "name": "Cheese Cake - Two Slices",
-                "image": "",
-                "price": "$4.49"
-            },
-            {
-                "name": "Cheese Cake - Three Slices",
-                "image": "",
-                "price": "$5.49"
             },
             {
                 "name": "Small Ice Cream",

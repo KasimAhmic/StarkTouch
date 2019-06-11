@@ -16,6 +16,7 @@ app.post('/submitOrder', function(req, res) {
         "name": req.body.name,
         "orderNumber": generateOrderNumber()
     }
+    console.log(JSON.stringify(order))
 
     //res.send(`Thank you ${name}! Your order number is ${orderNumber} and will be ready shortly!`);
     res.setHeader('Content-Type', 'application/json');
@@ -46,6 +47,5 @@ function generateOrderNumber() {
         return String(database);
     }
     database++;
-    console.log(database)
     return String(database);
 }

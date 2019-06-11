@@ -12,19 +12,19 @@ var dubug;
 
 // Main Functions
 function init() {
+    // Debug related initilization
     debug = ipcRenderer.sendSync('request-debug');
-    if (debug) {
-        var debugButton = document.createElement('button');
-            debugButton.className = 'debug';
-            debugButton.textContent = 'Reload';
-            debugButton.addEventListener('click', function() {
-                location.reload();
-            });
-        document.body.appendChild(debugButton);
-    }
+    if (debug) {runDebug()}
+
     config = ipcRenderer.sendSync('request-config');
     menu = ipcRenderer.sendSync('request-menu');
+
     createCategoryButtons();
+    createItemButtons(config.kiosk.currentTab);
+
+    document.getElementById('submit').addEventListener('click', function() {
+        submitOrder(shoppingCart);
+    });
 }
 
 function createCategoryButtons() {
@@ -45,20 +45,35 @@ function createCategoryButtons() {
 function createItemButtons() {
     var currentTab = Object.values(config.kiosk.currentTab);
     var itemDiv = document.getElementById('items');
+
     itemDiv.innerHTML = '';
 
     for (i = 0; i < menu[currentTab].items.length; i++) {
         var item = menu[currentTab].items[i];
         var itemButton = document.createElement('div');
+            itemButton.className = 'itemButton animated flipInX';
             itemButton.dataset.item = item.name;
-            itemButton.className = 'itemButton';
-            itemButton.textContent = item.price + ' - ' + item.name;
             itemButton.dataset.target = i;
+            itemButton.style.backgroundImage = 'url(' + item.image + ')';
             itemButton.addEventListener("click", function() {
                 addToCart(this.dataset.target);
             });
+        var itemPrice = document.createElement('span');
+            itemPrice.className = 'list-item-price';
+            itemPrice.textContent = item.price;
+        var itemName = document.createElement('span');
+            itemName.className = 'list-item-name';
+            itemName.textContent = item.name;
+        itemButton.appendChild(itemPrice);
+        itemButton.appendChild(itemName);
         itemDiv.appendChild(itemButton);
     }
+
+    itemDiv.querySelectorAll('.list-item-name').forEach((name) => {
+        var height = name.offsetHeight;
+        name.style.paddingTop = (height / 2) + 'px';
+        name.style.paddingBottom = (height / 2) + 'px';
+    });
 }
 
 function addToCart(itemIndex) {
@@ -79,6 +94,18 @@ function updateCart() {
     cartContainer.innerHTML = '';
 
     for (var i = 0; i < shoppingCart.length; i ++) {
+        var itemTemplate = `
+        <li data-name="${removeSpaces((shoppingCart[i].name + '-' + i))}">
+            <button data-name="${removeSpaces((shoppingCart[i].name + '-' + i))}" onclick="removeFromCart('${removeSpaces(removeSpaces(shoppingCart[i].name + '-' + i))}', ${i})">X</button>
+            <span class="cart-item-name">${shoppingCart[i].name}</span>
+            <span class="cart-item-price">${shoppingCart[i].price}</span>
+        </li>`
+        cartContainer.innerHTML += itemTemplate;
+
+        /*
+         * Legacy item instertion code for temporary reference only. Switched to template literal for easier rearanging of items entries in
+         * the cart.
+
         // Entry Wrapper
         entryContainer = document.createElement('li');
         entryContainer.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
@@ -98,11 +125,13 @@ function updateCart() {
         itemEntry.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
         itemEntry.textContent = shoppingCart[i].price + ' - ' + shoppingCart[i].name;
         // Append elements to entry container
-        entryContainer.appendChild(removeButton);
-        entryContainer.appendChild(editButton);
+        //entryContainer.appendChild(removeButton);
+        //entryContainer.appendChild(editButton);
         entryContainer.appendChild(itemEntry);
         // Append entry container to shopping cart
         cartContainer.appendChild(entryContainer);
+
+        */
     }
 
     updateTotals();
@@ -119,7 +148,7 @@ function updateTotals() {
     console.log('Subtotal: $' + subtotal + ' | Tax: $' + tax + ' | Total: $' + total);
 
     /*
-     * This function will be responsible for updating the values in the shopping cart to reflect the changes the customer has made  to the 
+     * This function will be responsible for updating the values in the shopping cart to reflect the changes the customer has made to the 
      * cart.
      * 
      * Example:
@@ -151,13 +180,15 @@ function submitOrder(cart) {
         }
     };
 
+    ipcRenderer.sendSync('submitOrder', shoppingCart);
+
     request(options, function (error, response, body) {
         if (error) throw new Error(error);
         console.log(body);
 
         /*
          * The variable "body" contains a stringified JSON response from the server giving the keys "name" and "orderNumber" and their
-         * respective values. Upon submitting the order, this function will also display a message thanking the customer by name and  giving
+         * respective values. Upon submitting the order, this function will also display a message thanking the customer by name and giving
          * them their order number.
          * 
          * Example:
@@ -185,6 +216,21 @@ function capitalize(str) {
 }
 function removeSpaces(str) {
     return str.replace(/\s+/g, '-');
+}
+function runDebug() {
+    var debugButton = document.createElement('button');
+        debugButton.className = 'debug';
+        debugButton.textContent = 'Reload';
+        debugButton.addEventListener('click', function() {
+            location.reload();
+        });
+    document.body.appendChild(debugButton);
+
+    document.addEventListener('keydown', function(event) {
+        if (event.code == 'F5') {
+            location.reload();
+        }
+    })
 }
 
 init();
