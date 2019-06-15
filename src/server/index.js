@@ -25,18 +25,19 @@ app.post('/submitOrder', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
 
     var con = mysql.createConnection({
+        // INSERT SQL CONNECTION INFORMATION HERE
     });
 
-    con.connect(function(err) {
-        if (err) throw err;
-
-        var sql = "INSERT INTO order_stats (restaurant_id, order_date, dine_in, order_code, total_cost) VALUES ('1', curdate(), '1', '" + (database % 999) + "', '" + order.total + "');";
-
-        con.query(sql, function (err, result) {
-            if (err) throw err;
-            console.log("Table created");
-        });
-    });
+    //con.connect(function(err) {
+    //    if (err) throw err;
+    //
+    //    var sql = "INSERT INTO order_stats (restaurant_id, order_date, dine_in, order_code, total_cost) VALUES ('1', curdate(), '1', '" + (database % 999) + "', '" + order.total + "');";
+    //
+    //    con.query(sql, function (err, result) {
+    //        if (err) throw err;
+    //        console.log("Table created");
+    //    });
+    //});
 
     res.end(JSON.stringify(order));
 });

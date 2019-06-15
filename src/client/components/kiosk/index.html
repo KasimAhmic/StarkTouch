@@ -4,8 +4,9 @@
         <meta charset="UTF-8">
         <title>StarkTouch POS</title>
 
-        <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="animate.css">
+        <link rel="stylesheet" href="fonts.min.css">
+        <link rel="stylesheet" href="index.css">
     </head>
     <body>
         <main>
@@ -20,6 +21,13 @@
                 <ul id="cart">
                     <!-- Populated by addToCart() in index.js -->
                 </ul>
+                <div class="totals">
+                    <ul>
+                        <li>Subtotal:<span id="subtotal">$0.00</span></li>
+                        <li>Tax:<span id="tax">$0.00</span></li>
+                        <li>Total:<span id="total">$0.00</span></li>
+                    </ul>
+                </div>
                 <button id="submit">Submit Order</button>
             </div>
         </main>

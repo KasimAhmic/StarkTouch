@@ -26,7 +26,9 @@ function init() {
     });
 }
 
+// Creates the category buttons at the top of the page
 function createCategoryButtons() {
+    // Reads the categories from the config file
     var categories = Object.keys(menu);
 
     for (i = 0; i < categories.length; i++) {
@@ -35,7 +37,12 @@ function createCategoryButtons() {
             button.dataset.category = Object.keys(menu)[i];
             button.addEventListener("click", function() {
                 config.kiosk.currentTab = this.dataset.category;
-                createItemButtons();
+                document.querySelector('.itemButton').addEventListener('animationend', function() {
+                    createItemButtons();
+                });
+                document.querySelectorAll('.itemButton').forEach((itemButton) => {
+                    itemButton.className = 'itemButton animated fadeOutRight faster';
+                });
             });
         document.getElementById('categories').appendChild(button);
     }
@@ -50,12 +57,16 @@ function createItemButtons() {
     for (i = 0; i < menu[currentTab].items.length; i++) {
         var item = menu[currentTab].items[i];
         var itemButton = document.createElement('div');
-            itemButton.className = 'itemButton animated flipInX';
+            itemButton.className = 'itemButton animated fadeInLeft faster';
             itemButton.dataset.item = item.name;
             itemButton.dataset.target = i;
             itemButton.style.backgroundImage = 'url(' + item.image + ')';
             itemButton.addEventListener("click", function() {
                 addToCart(this.dataset.target);
+                this.className = 'itemButton animated bounce fast';
+            });
+            itemButton.addEventListener('animationend', function() {
+                this.classList.remove('bounce');
             });
         var itemPrice = document.createElement('span');
             itemPrice.className = 'list-item-price';
@@ -88,22 +99,22 @@ function updateCart() {
     var entryContainer;
     var removeButton;
     var editButton;
-    var itemEntry;
+    var itemName;
 
     cartContainer.innerHTML = '';
 
     for (var i = 0; i < shoppingCart.length; i ++) {
-        var itemTemplate = `
-        <li data-name="${removeSpaces((shoppingCart[i].name + '-' + i))}">
-            <button data-name="${removeSpaces((shoppingCart[i].name + '-' + i))}" onclick="removeFromCart('${removeSpaces(removeSpaces(shoppingCart[i].name + '-' + i))}', ${i})">X</button>
-            <span class="cart-item-name">${shoppingCart[i].name}</span>
-            <span class="cart-item-price">${shoppingCart[i].price}</span>
-        </li>`
-        cartContainer.innerHTML += itemTemplate;
-
         /*
-         * Legacy item instertion code for temporary reference only. Switched to template literal for easier rearanging of items entries in
-         * the cart.
+         * Legacy item instertion code for temporary reference only.
+         */
+
+        //var itemTemplate = `
+        //<li data-name="${removeSpaces((shoppingCart[i].name + '-' + i))}">
+        //    <button data-name="${removeSpaces((shoppingCart[i].name + '-' + i))}" onclick="removeFromCart('${removeSpaces(removeSpaces(shoppingCart[i].name + '-' + i))}', ${i})" class="remove-item-button"></button>
+        //    <span class="cart-item-name">${shoppingCart[i].name}</span>
+        //    <span class="cart-item-price">${shoppingCart[i].price}</span>
+        //</li>`
+        //cartContainer.innerHTML += itemTemplate;
 
         // Entry Wrapper
         entryContainer = document.createElement('li');
@@ -111,7 +122,7 @@ function updateCart() {
         // Remove Button
         removeButton = document.createElement('button');
         removeButton.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
-        removeButton.textContent = 'X';
+        removeButton.className = 'remove-item-button';
         removeButton.addEventListener('click', function() {
             removeFromCart(this.dataset.name, i);
         });
@@ -120,17 +131,20 @@ function updateCart() {
         editButton.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
         editButton.textContent = 'E';
         // Item Name
-        itemEntry = document.createElement('span');
-        itemEntry.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
-        itemEntry.textContent = shoppingCart[i].price + ' - ' + shoppingCart[i].name;
+        itemName = document.createElement('span');
+        itemName.className = 'cart-item-name';
+        itemName.textContent = shoppingCart[i].name;
+        // Item Price
+        itemPrice = document.createElement('span');
+        itemPrice.className = 'cart-item-price';
+        itemPrice.textContent = shoppingCart[i].price;
         // Append elements to entry container
-        //entryContainer.appendChild(removeButton);
-        //entryContainer.appendChild(editButton);
-        entryContainer.appendChild(itemEntry);
+        entryContainer.appendChild(removeButton);
+        //entryContainer.appendChild(editButton); // TODO: Implement edit button
+        entryContainer.appendChild(itemName);
+        entryContainer.appendChild(itemPrice);
         // Append entry container to shopping cart
         cartContainer.appendChild(entryContainer);
-
-        */
     }
 
     updateTotals();
@@ -144,16 +158,11 @@ function removeFromCart(name, index) {
 
 function updateTotals() {
     [subtotal, tax, total] = calculateTotals();
-    console.log('Subtotal: $' + subtotal + ' | Tax: $' + tax + ' | Total: $' + total);
     shoppingCart.total = total;
 
-    /*
-     * This function will be responsible for updating the values in the shopping cart to reflect the changes the customer has made to the 
-     * cart.
-     * 
-     * Example:
-     * document.getElementById('cartSubtotal').textContent = '$' + subtotal;
-     */
+    document.getElementById('subtotal').innerText = '$' + subtotal;
+    document.getElementById('tax').innerText = '$' + tax;
+    document.getElementById('total').innerText = '$' + total;
 }
 
 function calculateTotals() {
@@ -212,7 +221,7 @@ function runDebug() {
         if (event.code == 'F5') {
             location.reload();
         }
-    })
+    });
 }
 
 init();
