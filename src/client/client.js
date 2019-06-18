@@ -1,6 +1,5 @@
 const { app, BrowserWindow } = require('electron');
 const { ipcMain } = require('electron');
-var mysql = require('mysql');
 var request = require('request');
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -25,7 +24,8 @@ function createWindow () {
             nodeIntegration: true
         },
         autoHideMenuBar: true,
-        show: false
+        show: false,
+        icon: 'icon.ico'
     });
 
     //win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
@@ -64,14 +64,12 @@ ipcMain.on('request-config', (event) => {
 ipcMain.on('request-menu', (event) => {
     var options = {
         method: 'POST',
-        //url: 'http://18.191.208.177:3000/getMenu',
         url: 'http://localhost:3000/getMenu'
     };
     request(options, function (error, response, body) {
         if (error) {
             throw new Error(error);
         }
-        //event.reply('getMenuResponse', body);
         event.returnValue = JSON.parse(body);
     });
 });

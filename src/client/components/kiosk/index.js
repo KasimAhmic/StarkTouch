@@ -88,7 +88,6 @@ function createItemButtons() {
 
 function addToCart(itemIndex) {
     var item = menu[config.kiosk.currentTab].items[itemIndex];
-    item['type'] = menu[config.kiosk.currentTab].name;
 
     shoppingCart.push(item);
     updateCart();

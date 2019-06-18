@@ -1,16 +1,6 @@
 {
-    "terminals": {
-        "Sandwiches": {
-            "address": ""
-        },
-        "Sides": {
-            "address": ""
-        },
-        "Desserts": {
-            "address": ""
-        }
-    },
     "restaurant": {
-        "id": 1
+        "id": 1,
+        "zipcode": 33545
     }
 }

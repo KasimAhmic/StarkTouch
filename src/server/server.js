@@ -2,9 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const con = require('./connection.js');
-
-var database = 60;
-var config = require('./config.json')
+const config = require('./config.json');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -16,16 +14,29 @@ app.post('/submitOrder', function(req, res) {
         "total": req.body.total,
         "dineIn": req.body.dineIn
     };
-    var sql = `SET autocommit = 0;
+    var sqlStart = `SET autocommit = 0;
         START TRANSACTION;
            INSERT INTO order_stats (restaurant_id, order_date, dine_in) VALUES ('${config.restaurant.id}', curdate(), '${order.dineIn ? 1 : 0}');
            SELECT @orderstats_id := MAX(order_id)
-           FROM order_stats;
-           INSERT INTO ordered_entree (order_stats_id, entree_ordered) VALUES (@orderstats_id, '6');
-        COMMIT;
-        SET autocommit = 1;`;
+           FROM order_stats;`;
+    var sqlMid = ``;
+    var sqlEnd = `COMMIT;SET autocommit=1;`
 
-    con.query(sql, function(err, result) {
+    for (i = 0; i < order.cart.length; i++) {
+        if (order.cart[i].type == 'entree') {
+            sqlMid += `INSERT INTO ordered_entree (order_stats_id, entree_ordered) VALUES (@orderstats_id, '${order.cart[i].id}');`;
+        } else if (order.cart[i].type == 'side') {
+            sqlMid += `INSERT INTO ordered_side (order_stats_id, side_ordered) VALUES (@orderstats_id, '${order.cart[i].id}');`;
+        } else if (order.cart[i].type == 'dessert') {
+            sqlMid += `INSERT INTO ordered_dessert (order_stats_id, dessert_ordered) VALUES (@orderstats_id, '${order.cart[i].id}');`;
+        } else if (order.cart[i].type == 'drink') {
+            sqlMid += `INSERT INTO ordered_drink (order_stats_id, drink_ordered) VALUES (@orderstats_id, '${order.cart[i].id}');`;
+        }
+    }
+
+    var finalSql = sqlStart + sqlMid + sqlEnd;
+
+    con.query(finalSql, function(err, result) {
         if (err) throw err;
         console.log("Order submitted.");
     }).on('end', function() {
@@ -36,15 +47,7 @@ app.post('/submitOrder', function(req, res) {
 });
 
 app.post('/getMenu', function(req, res) {
-    var sql = `SELECT JSON_OBJECT(
-        "ID", entree_id,
-        "Name", description,
-        "Cost", entree_cost,
-        "Active", active)
-    FROM entree;`;
-
-    var minSQL = `SELECT JSON_OBJECT("Entrees",(SELECT CAST(CONCAT("[",GROUP_CONCAT(JSON_OBJECT("ID",entree_id,"Name",description,"Cost",entree_cost,"Active",active)),"]")AS JSON)FROM entree),"Sides",(SELECT CAST(CONCAT("[",GROUP_CONCAT(JSON_OBJECT("ID",side_id,"Name",description,"Cost",side_cost,"Active",active)),"]")AS JSON)FROM side),"Desserts",(SELECT CAST(CONCAT("[",GROUP_CONCAT(JSON_OBJECT("ID",dessert_id,"Name",description,"Cost",dessert_cost,"Active",active)),"]")AS JSON)FROM dessert),"Drinks",(SELECT CAST(CONCAT("[",GROUP_CONCAT(JSON_OBJECT("ID",drink_id,"Name",description,"Cost",drink_cost,"Active",active)),"]")AS JSON)FROM drink));`;
-    var newSQL = `SELECT JSON_OBJECT (
+    var sql = `SELECT JSON_OBJECT (
         "0", JSON_OBJECT (
             "name", "Entrees",
             "items", (
@@ -55,7 +58,8 @@ app.post('/getMenu', function(req, res) {
                                 "id", entree_id,
                                 "name", description,
                                 "cost", entree_cost,
-                                "active", active
+                                "active", active,
+                                "type", "entree"
                             )
                         ),
                     "]") AS JSON
@@ -72,7 +76,8 @@ app.post('/getMenu', function(req, res) {
                                 "id", side_id,
                                 "name", description,
                                 "cost", side_cost,
-                                "active", active
+                                "active", active,
+                                "type", "side"
                             )
                         ),
                     "]") AS JSON
@@ -89,7 +94,8 @@ app.post('/getMenu', function(req, res) {
                                 "id", dessert_id,
                                 "name", description,
                                 "cost", dessert_cost,
-                                "active", active
+                                "active", active,
+                                "type", "dessert"
                             )
                         ),
                     "]") AS JSON
@@ -106,7 +112,8 @@ app.post('/getMenu', function(req, res) {
                                 "id", drink_id,
                                 "name", description,
                                 "cost", drink_cost,
-                                "active", active
+                                "active", active,
+                                "type", "drink"
                             )
                         ),
                     "]") AS JSON
@@ -115,12 +122,11 @@ app.post('/getMenu', function(req, res) {
         )
     );`;
 
-    con.query(newSQL, function(err, result) {
+    con.query(sql, function(err, result) {
         if (err) throw err;
         var parsedJSON = {};
 
-        for(i = 0; i < result.length; i++) {
-            console.log((Object.values(result[i])[0]))
+        for (i = 0; i < result.length; i++) {
             parsedJSON = ((Object.values(result[i])[0]));
         }
 
@@ -137,29 +143,11 @@ app.listen(3000, function(err) {
 });
 
 function generateOrderNumber(callback) {
-    /*
-     * This function needs to query the size of a table that stores order information. It simply needs to get the number of entires and 
-     * modulo it by 999 to get the current order number. The 999 comes from a rotating limit of 1000 orders per day. The database will store
-     * orders using an auto incrementing primary key and the order number stored in the database will be used almost exclussively for the
-     * customer knowing which order is theirs.
-     * 
-     * Example:
-     * If table size is 576, 576 % 999 = 576 so the order number is 576
-     * If table size is 8945, 8945 % 999 = 953 so the order number is 953
-     */
-    //if ((database + 1) > 999) {
-    //    database = 1;
-    //    return String(database);
-    //}
-    //database++;
-    //return String(database);
-
     var sql = `SELECT MAX(order_id) FROM order_stats`;
     con.query(sql, function(err, result) {
         if (err) throw err;
         Object.keys(result).forEach(function(key) {
             var row = result[key];
-            console.log(Object.values(row)[0]);
             callback(Object.values(row)[0] % 999);
         });
     });
