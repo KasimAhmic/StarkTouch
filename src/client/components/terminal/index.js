@@ -9,7 +9,7 @@ function generateColumns(maxCols) {
     columnTemplate = `
     <div class="order-column">
         <div class="order-number">
-
+            <span>888</span>
         </div>
         <div class="order-contents">
 

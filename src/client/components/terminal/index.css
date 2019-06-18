@@ -5,23 +5,15 @@ body {
     margin: 0;
     padding: 0;
 }
-header {
-    height: 40px;
-    border-bottom: 1px solid #666;
-    box-sizing: border-box;
-}
-header * {
-    margin: 0;
-}
 main {
-    height: calc(100% - 40px);
+    height: 100%;
     font-size: 0;
 }
 .order-column {
     display: inline-block;
     width: 12.5%;
     height: 100%;
-    border-right: 1px solid #666;
+    border-right: 1px solid #1c769c;
     box-sizing: border-box;
 }
 .order-column:last-child {
@@ -29,5 +21,12 @@ main {
 }
 .order-number {
     height: 80px;
-    border-bottom: 1px solid #666;
+    background: #29abe2;
+    border-bottom: 1px solid #1c769c;
+    text-align: center;
+}
+.order-number span {
+    font: 62px Helvetica;
+    vertical-align: middle;
+    line-height: 80px;
 }

@@ -16,7 +16,7 @@ function init() {
     if (debug) {runDebug()}
 
     config = ipcRenderer.sendSync('request-config');
-    menu = ipcRenderer.sendSync('request-menu');
+    menu = JSON.parse(ipcRenderer.sendSync('request-menu'));
 
     createCategoryButtons();
     createItemButtons(config.kiosk.currentTab);
@@ -70,7 +70,7 @@ function createItemButtons() {
             });
         var itemPrice = document.createElement('span');
             itemPrice.className = 'list-item-price';
-            itemPrice.textContent = item.price;
+            itemPrice.textContent = '$' + item.cost;
         var itemName = document.createElement('span');
             itemName.className = 'list-item-name';
             itemName.textContent = item.name;
@@ -100,6 +100,7 @@ function updateCart() {
     var removeButton;
     var editButton;
     var itemName;
+    var itemPrice;
 
     cartContainer.innerHTML = '';
 
@@ -171,7 +172,7 @@ function calculateTotals() {
     var total = 0.0;
 
     for (var i = 0; i < shoppingCart.length; i++) {
-        subtotal += parseFloat((shoppingCart[i].price).replace('$', ''));
+        subtotal += parseFloat((shoppingCart[i].cost));
         tax = subtotal * 0.07;
         total = subtotal + tax;
     }

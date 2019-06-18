@@ -9,5 +9,8 @@
         "Desserts": {
             "address": ""
         }
+    },
+    "restaurant": {
+        "id": 1
     }
 }

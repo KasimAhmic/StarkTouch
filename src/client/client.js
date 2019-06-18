@@ -7,7 +7,6 @@ var request = require('request');
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 let configFile = require('./config.json');
-let menuFile = require(configFile.global.menuFile);
 
 // Temporary JSON order files. To be replaced with database queries
 let orderProgressFile = require(configFile.global.orderProgressFile);
@@ -63,7 +62,18 @@ ipcMain.on('request-config', (event) => {
     event.returnValue = configFile;
 });
 ipcMain.on('request-menu', (event) => {
-    event.returnValue = menuFile;
+    var options = {
+        method: 'POST',
+        //url: 'http://18.191.208.177:3000/getMenu',
+        url: 'http://localhost:3000/getMenu'
+    };
+    request(options, function (error, response, body) {
+        if (error) {
+            throw new Error(error);
+        }
+        //event.reply('getMenuResponse', body);
+        event.returnValue = JSON.parse(body);
+    });
 });
 // Create event handlers for new page requests
 ipcMain.on('load-settings', (event) => {
@@ -82,29 +92,18 @@ ipcMain.on('request-debug', (event) => {
 ipcMain.on('submitOrder', (event, cart, total) => {
     var options = {
         method: 'POST',
-        url: 'http://18.191.208.177:3000/submitOrder',
+        url: 'http://localhost:3000/submitOrder',
         form: {
             cart: JSON.stringify(cart),
             name: 'Kasim',
-            total: total
+            total: total,
+            dineIn: true
         }
     };
 
-    request(options, function (error, response, body) {
-        if (error) {
-            throw new Error(error);
-        }
-        console.log(body);
+    request(options, function (err, response, body) {
+        if (err) throw err;
         event.reply('submitOrderResponse', body);
-
-        /*
-         * The variable "body" contains a stringified JSON response from the server giving the keys "name" and "orderNumber" and their
-         * respective values. Upon submitting the order, this function will also display a message thanking the customer by name and giving
-         * them their order number.
-         * 
-         * Example:
-         * "Thank you body.name! Your order number is body.orderNumber and will be ready shortly!"
-         */
     });
 });
 

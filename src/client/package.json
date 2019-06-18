@@ -1,8 +1,8 @@
 {
     "name": "starktouch",
-    "version": "0.0.2",
+    "version": "0.5",
     "description": "StarkTouch is a POS technology that is simple to use, forward thinking, and scalable.",
-    "main": "main.js",
+    "main": "client.js",
     "scripts": {
         "start": "electron .",
         "test": "echo \"Error: no test specified\" && exit 1",
