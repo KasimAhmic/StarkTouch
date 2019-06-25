@@ -57,59 +57,6 @@ function createWindow () {
     });
 }
 
-// Create event handlers for component requests
-ipcMain.on('request-config', (event) => {
-    event.returnValue = configFile;
-});
-ipcMain.on('request-menu', (event) => {
-    var options = {
-        method: 'POST',
-        url: 'http://localhost:3000/getMenu'
-    };
-    request(options, function (error, response, body) {
-        if (error) {
-            throw new Error(error);
-        }
-        event.returnValue = JSON.parse(body);
-    });
-});
-// Create event handlers for new page requests
-ipcMain.on('load-settings', (event) => {
-    // NOT DONE YET
-    win.loadFile('components/kiosk/settings.html');
-    event.returnValue = null;
-});
-ipcMain.on('load-menu', (event) => {
-    win.loadFile('components/kiosk/index.html');
-    event.returnValue = null;
-});
-
-ipcMain.on('request-debug', (event) => {
-    event.returnValue = debug;
-});
-ipcMain.on('submitOrder', (event, cart, total) => {
-    var options = {
-        method: 'POST',
-        url: 'http://localhost:3000/submitOrder',
-        form: {
-            cart: JSON.stringify(cart),
-            name: 'Kasim',
-            total: total,
-            dineIn: true
-        }
-    };
-
-    request(options, function (err, response, body) {
-        if (err) throw err;
-        event.reply('submitOrderResponse', body);
-    });
-});
-
-// TO BE REMOVED - Legacy event handler
-ipcMain.on('config-order', (event) => {
-    event.returnValue = [configFile, orderProgressFile, orderReadyFile];
-});
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -134,3 +81,91 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// Create event handlers for component requests
+ipcMain.on('request-config', (event) => {
+    event.returnValue = configFile;
+});
+ipcMain.on('getMenu', (event) => {
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/getMenu'
+    };
+    request(options, function (error, response, body) {
+        if (error) {
+            throw new Error(error);
+        }
+        event.returnValue = JSON.parse(body);
+    });
+});
+
+// Create event handlers for new page requests
+ipcMain.on('load-settings', (event) => {
+    // NOT DONE YET
+    win.loadFile('components/kiosk/settings.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-menu', (event) => {
+    win.loadFile('components/kiosk/index.html');
+    event.returnValue = null;
+});
+
+// Submits order to the database
+ipcMain.on('submitOrder', (event, cart, subtotal, tax, total) => {
+    var options = {
+        method: 'POST',
+        url: 'http://localhost:3000/submitOrder',
+        form: {
+            cart: JSON.stringify(cart),
+            name: 'Kasim',
+            subtotal: subtotal,
+            tax: tax,
+            total: total,
+            dineIn: true
+        }
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.reply('submitOrderResponse', body);
+    });
+});
+
+// Searches database for incompelete orders and returns them
+ipcMain.on('getIncompleteOrder', (event) => {
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/getIncompleteOrder',
+        form: {
+            terminal: configFile.terminal.type,
+            maxCols: configFile.terminal.maxColumns
+        }
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.reply('getIncompleteOrderResponse', body);
+    });
+});
+
+// Converts food type names into integers
+ipcMain.on('getIndex', (event, type) => {
+    if (type == 'entree') {
+        event.returnValue = 0;
+    } else if (type == 'side') {
+        event.returnValue = 1;
+    } else if (type == 'dessert') {
+        event.returnValue = 2;
+    } else {
+        event.returnValue = 3;
+    }
+});
+
+// TO BE REMOVED - Legacy event handler
+ipcMain.on('config-order', (event) => {
+    event.returnValue = [configFile, orderProgressFile, orderReadyFile];
+});
+
+ipcMain.on('request-debug', (event) => {
+    event.returnValue = debug;
+});

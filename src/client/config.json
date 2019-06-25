@@ -1,6 +1,6 @@
 {
     "global": {
-        "componentToLaunch": "kiosk",
+        "componentToLaunch": "terminal",
         "orderProgressFile": "./orderProgress.json",
         "orderReadyFile": "./orderReady.json"
     },
@@ -8,7 +8,8 @@
         "currentTab": "0"
     },
     "terminal": {
-        "maxColumns": 8
+        "maxColumns": 6,
+        "type": "side"
     },
     "server": {
 

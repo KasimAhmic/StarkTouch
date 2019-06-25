@@ -12,11 +12,14 @@ app.post('/submitOrder', function(req, res) {
         "name": req.body.name,
         "cart": JSON.parse(req.body.cart),
         "total": req.body.total,
-        "dineIn": req.body.dineIn
+        "dineIn": req.body.dineIn,
+        "subtotal": req.body.subtotal,
+        "tax": req.body.tax,
+        "total": req.body.total
     };
     var sqlStart = `SET autocommit = 0;
         START TRANSACTION;
-           INSERT INTO order_stats (restaurant_id, order_date, dine_in) VALUES ('${config.restaurant.id}', curdate(), '${order.dineIn ? 1 : 0}');
+           INSERT INTO order_stats (restaurant_id, order_date, dine_in, pretax_total, tax_rate, grand_total) VALUES ('${config.restaurant.id}', curdate(), '${order.dineIn ? 1 : 0}', ${order.subtotal}, ${order.tax}, ${order.total});
            SELECT @orderstats_id := MAX(order_id)
            FROM order_stats;`;
     var sqlMid = ``;
@@ -46,7 +49,17 @@ app.post('/submitOrder', function(req, res) {
     });
 });
 
-app.post('/getMenu', function(req, res) {
+//app.post('/test', function(req, res) {
+//    var sql = `INSERT INTO order_stats (restaurant_id, dine_in, order_out) VALUES ('1', '1', '` + new Date().toISOString().slice(0, 19).replace('T', ' ') + `');`
+//    console.log(sql)
+//    con.query(sql, function(err, result) {
+//        if (err) throw err;
+//
+//        console.log('Sent')
+//    })
+//});
+
+app.get('/getMenu', function(req, res) {
     var sql = `SELECT JSON_OBJECT (
         "0", JSON_OBJECT (
             "name", "Entrees",
@@ -131,6 +144,36 @@ app.post('/getMenu', function(req, res) {
         }
 
         res.end(JSON.stringify(parsedJSON));
+    });
+});
+
+app.get('/getIncompleteOrder', function(req, res) {
+    var sql = `START TRANSACTION;
+	    SELECT @max_order := MAX(order_id) FROM order_stats;
+	    SELECT * FROM ordered_${req.body.terminal} WHERE order_stats_id > @max_order - ${req.body.maxCols} AND ${req.body.terminal}_end IS NULL;
+    COMMIT;`
+
+    con.query(sql, function(err, result) {
+        if (err) throw err;
+
+        var orders = [];
+        var currentOrder = null;
+
+        for (i = 0; i < result[2].length; i++) {
+            if (result[2][i].order_stats_id % 999 != currentOrder) {
+                orders.push({orderNumber: result[2][i].order_stats_id % 999, items: [], orderId: result[2][i].order_stats_id});
+            }
+            currentOrder = result[2][i].order_stats_id % 999;
+        }
+        for (i = 0; i < result[2].length; i++) {
+            for (x = 0; x < orders.length; x++) {
+                if (result[2][i].order_stats_id % 999 == orders[x].orderNumber) {
+                    orders[x].items.push(result[2][i][req.body.terminal + '_ordered']);
+                }
+            }
+        }
+
+        res.end(JSON.stringify(orders))
     });
 });
 
