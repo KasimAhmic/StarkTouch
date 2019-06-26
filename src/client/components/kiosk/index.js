@@ -21,9 +21,7 @@ function init() {
     createCategoryButtons();
     createItemButtons(config.kiosk.currentTab);
 
-    document.getElementById('submit').addEventListener('click', function() {
-        reviewOrder();
-    });
+    document.getElementById('review').addEventListener('click', reviewOrder);
 }
 
 // Creates the category buttons at the top of the page
@@ -53,9 +51,6 @@ function createItemButtons() {
     var itemDiv = document.getElementById('items');
 
     itemDiv.innerHTML = '';
-
-    var submitButton = document.getElementById('submit');
-    submitButton.innerHTML = 'Review Order';
 
     for (i = 0; i < menu[currentTab].items.length; i++) {
         var item = menu[currentTab].items[i];
@@ -102,9 +97,6 @@ function selectToppings(entree) {
 
     itemDiv.innerHTML = '';
 
-    var submitButton = document.getElementById('submit');
-    submitButton.innerHTML = 'Review Order';
-
     for (i = 0; i < toppings.length; i++) {
         var topping = toppings[i];
         var toppingButton = document.createElement('div');
@@ -124,6 +116,7 @@ function selectToppings(entree) {
         var itemName = document.createElement('span');
             itemName.className = 'list-item-name';
             itemName.textContent = toppings[i];
+
         toppingButton.appendChild(itemName);
         itemDiv.appendChild(toppingButton);
     }
@@ -183,9 +176,6 @@ function createConfirmationScreen() {
 
     itemDiv.innerHTML = '';
 
-    var submitButton = document.getElementById('submit');
-    submitButton.innerHTML = 'Review Order';
-
     var comment = document.createElement('span');
         comment.innerHTML = 'Does everything in your order look correct?';
         comment.className = 'confirmation-comment';
@@ -240,12 +230,12 @@ function createPaymentScreen() {
 
     itemDiv.innerHTML = '';
 
-    document.getElementById('submit').addEventListener('click', function() {
-        submitOrder();
-    });
-
-    var submitButton = document.getElementById('submit');
-    submitButton.innerHTML = 'Submit Order';
+    var submitButton = document.getElementById('review');
+        submitButton.innerHTML = 'Submit Order';
+        submitButton.removeEventListener('click', reviewOrder);
+        submitButton.addEventListener('click', function() {
+            submitOrder(shoppingCart);
+        });
 
     var nameDiv = document.createElement('div');
     var paymentDiv = document.createElement('div');
@@ -379,12 +369,16 @@ function reviewOrder() {
 
 function submitOrder(cart) {
     [subtotal, tax, total] = calculateTotals();
-    ipcRenderer.send('submitOrder', cart, total);
-    ipcRenderer.send('load-kiosk');
+    var name = document.getElementById('name-form').value;
+    ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total);
 }
 
 ipcRenderer.on('submitOrderResponse', (event, res) => {
-    console.log(res)
+    console.log(res);
+    
+    setTimeout(function() {
+        ipcRenderer.send('load-kiosk');
+    }, 5000);
 });
 
 // Leave this function for educational purposes

@@ -144,13 +144,13 @@ ipcMain.on('load-manager', (event) => {
 });
 
 // Submits order to the database
-ipcMain.on('submitOrder', (event, cart, subtotal, tax, total) => {
+ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
     var options = {
         method: 'POST',
         url: 'http://localhost:3000/submitOrder',
         form: {
             cart: JSON.stringify(cart),
-            name: 'Kasim',
+            name: name,
             subtotal: subtotal,
             tax: tax,
             total: total,

@@ -1,6 +1,6 @@
 {
     "global": {
-        "componentToLaunch": "terminal",
+        "componentToLaunch": "kiosk",
         "orderProgressFile": "./orderProgress.json",
         "orderReadyFile": "./orderReady.json"
     },
