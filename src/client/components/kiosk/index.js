@@ -16,7 +16,7 @@ function init() {
     if (debug) {runDebug()}
 
     config = ipcRenderer.sendSync('request-config');
-    menu = JSON.parse(ipcRenderer.sendSync('request-menu'));
+    menu = JSON.parse(ipcRenderer.sendSync('getMenu'));
 
     createCategoryButtons();
     createItemButtons(config.kiosk.currentTab);
@@ -288,7 +288,6 @@ function processPayment() {
 
 function addToCart(itemIndex) {
     var item = menu[config.kiosk.currentTab].items[itemIndex];
-    item['type'] = menu[config.kiosk.currentTab].name;
 
     shoppingCart.push(item);
     updateCart();
@@ -305,21 +304,10 @@ function updateCart() {
     cartContainer.innerHTML = '';
 
     for (var i = 0; i < shoppingCart.length; i ++) {
-        /*
-         * Legacy item instertion code for temporary reference only.
-         */
-
-        //var itemTemplate = `
-        //<li data-name="${removeSpaces((shoppingCart[i].name + '-' + i))}">
-        //    <button data-name="${removeSpaces((shoppingCart[i].name + '-' + i))}" onclick="removeFromCart('${removeSpaces(removeSpaces(shoppingCart[i].name + '-' + i))}', ${i})" class="remove-item-button"></button>
-        //    <span class="cart-item-name">${shoppingCart[i].name}</span>
-        //    <span class="cart-item-price">${shoppingCart[i].price}</span>
-        //</li>`
-        //cartContainer.innerHTML += itemTemplate;
-
         // Entry Wrapper
         entryContainer = document.createElement('li');
         entryContainer.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
+
         // Remove Button
         removeButton = document.createElement('button');
         removeButton.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
@@ -327,23 +315,28 @@ function updateCart() {
         removeButton.addEventListener('click', function() {
             removeFromCart(this.dataset.name, i);
         });
+
         // Edit Button
         editButton = document.createElement('button');
         editButton.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
         editButton.textContent = 'E';
+
         // Item Name
         itemName = document.createElement('span');
         itemName.className = 'cart-item-name';
         itemName.textContent = shoppingCart[i].name;
+
         // Item Price
         itemPrice = document.createElement('span');
         itemPrice.className = 'cart-item-price';
         itemPrice.textContent = shoppingCart[i].price;
+
         // Append elements to entry container
         entryContainer.appendChild(removeButton);
         //entryContainer.appendChild(editButton); // TODO: Implement edit button
         entryContainer.appendChild(itemName);
         entryContainer.appendChild(itemPrice);
+
         // Append entry container to shopping cart
         cartContainer.appendChild(entryContainer);
     }

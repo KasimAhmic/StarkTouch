@@ -1,6 +1,5 @@
 const { app, BrowserWindow } = require('electron');
 const { ipcMain } = require('electron');
-var mysql = require('mysql');
 var request = require('request');
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -25,7 +24,8 @@ function createWindow () {
             nodeIntegration: true
         },
         autoHideMenuBar: true,
-        show: false
+        show: false,
+        icon: 'icon.ico'
     });
 
     //win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
@@ -52,21 +52,44 @@ function createWindow () {
     });
 }
 
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', createWindow);
+
+// Quit when all windows are closed.
+app.on('window-all-closed', () => {
+    // On macOS it is common for applications and their menu bar
+    // to stay active until the user quits explicitly with Cmd + Q
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
+});
+
+app.on('activate', () => {
+    // On macOS it's common to re-create a window in the app when the
+    // dock icon is clicked and there are no other windows open.
+    if (win === null) {
+        createWindow();
+    }
+});
+
+// In this file you can include the rest of your app's specific main process
+// code. You can also put them in separate files and require them here.
+
 // Create event handlers for component requests
 ipcMain.on('request-config', (event) => {
     event.returnValue = configFile;
 });
-ipcMain.on('request-menu', (event) => {
+ipcMain.on('getMenu', (event) => {
     var options = {
-        method: 'POST',
-        //url: 'http://18.191.208.177:3000/getMenu',
+        method: 'GET',
         url: 'http://localhost:3000/getMenu'
     };
     request(options, function (error, response, body) {
         if (error) {
             throw new Error(error);
         }
-        //event.reply('getMenuResponse', body);
         event.returnValue = JSON.parse(body);
     });
 });
@@ -120,17 +143,16 @@ ipcMain.on('load-manager', (event) => {
     event.returnValue = null;
 });
 
-// Event handler for debugging
-ipcMain.on('request-debug', (event) => {
-    event.returnValue = debug;
-});
-ipcMain.on('submitOrder', (event, cart, total) => {
+// Submits order to the database
+ipcMain.on('submitOrder', (event, cart, subtotal, tax, total) => {
     var options = {
         method: 'POST',
         url: 'http://localhost:3000/submitOrder',
         form: {
             cart: JSON.stringify(cart),
             name: 'Kasim',
+            subtotal: subtotal,
+            tax: tax,
             total: total,
             dineIn: true
         }
@@ -142,32 +164,41 @@ ipcMain.on('submitOrder', (event, cart, total) => {
     });
 });
 
+// Searches database for incompelete orders and returns them
+ipcMain.on('getIncompleteOrder', (event) => {
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/getIncompleteOrder',
+        form: {
+            terminal: configFile.terminal.type,
+            maxCols: configFile.terminal.maxColumns
+        }
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.reply('getIncompleteOrderResponse', body);
+    });
+});
+
+// Converts food type names into integers
+ipcMain.on('getIndex', (event, type) => {
+    if (type == 'entree') {
+        event.returnValue = 0;
+    } else if (type == 'side') {
+        event.returnValue = 1;
+    } else if (type == 'dessert') {
+        event.returnValue = 2;
+    } else {
+        event.returnValue = 3;
+    }
+});
+
 // TO BE REMOVED - Legacy event handler
 ipcMain.on('config-order', (event) => {
     event.returnValue = [configFile, orderProgressFile, orderReadyFile];
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
-
-// Quit when all windows are closed.
-app.on('window-all-closed', () => {
-    // On macOS it is common for applications and their menu bar
-    // to stay active until the user quits explicitly with Cmd + Q
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
+ipcMain.on('request-debug', (event) => {
+    event.returnValue = debug;
 });
-
-app.on('activate', () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (win === null) {
-        createWindow();
-    }
-});
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
