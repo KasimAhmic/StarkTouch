@@ -31,12 +31,7 @@ function createWindow () {
     //win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
 
     // Load index.html file of configured component
-    if (configFile.global.componentToLaunch == 'kiosk') {
-        win.loadFile('components/' + configFile.global.componentToLaunch + '/welcome.html');
-    }
-    else {
-        win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
-    }
+    win.loadFile('components/' + configFile.global.componentToLaunch + '/welcome.html');
 
     // Show window once all assets are loaded
     win.once('ready-to-show', () => {
@@ -75,17 +70,57 @@ ipcMain.on('request-menu', (event) => {
         event.returnValue = JSON.parse(body);
     });
 });
+
 // Create event handlers for new page requests
 ipcMain.on('load-settings', (event) => {
     // NOT DONE YET
     win.loadFile('components/kiosk/settings.html');
     event.returnValue = null;
 });
+ipcMain.on('load-kiosk', (event) => {
+    win.loadFile('components/kiosk/welcome.html');
+    event.returnValue = null;
+});
 ipcMain.on('load-menu', (event) => {
     win.loadFile('components/kiosk/index.html');
     event.returnValue = null;
 });
+ipcMain.on('load-register', (event) => {
+    // NOT DONE YET
+    win.loadFile('components/register/index.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-burger', (event) => {
+    // NOT DONE YET
+    win.loadFile('components/burger/index.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-fryer', (event) => {
+    // NOT DONE YET
+    win.loadFile('components/fryer/index.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-drinks', (event) => {
+    // NOT DONE YET
+    win.loadFile('components/drinks/index.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-emp-consolidate', (event) => {
+    // NOT DONE YET
+    win.loadFile('components/employee-consolidation/index.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-cust-consolidate', (event) => {
+    win.loadFile('components/consolidation/index.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-manager', (event) => {
+    // NOT DONE YET
+    win.loadFile('components/manager/index.html');
+    event.returnValue = null;
+});
 
+// Event handler for debugging
 ipcMain.on('request-debug', (event) => {
     event.returnValue = debug;
 });

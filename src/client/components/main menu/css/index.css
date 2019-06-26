@@ -1,0 +1,53 @@
+body {
+  width: 100%;
+  background-color: #f2f2f2;
+}
+
+div#menu-bar {
+  background-color: #2E3192;
+  height: 100px;
+}
+
+div#menu-bar img {
+  display: flex;
+  float: right;
+  width: 200px;
+  height: 100px;
+}
+
+div#menu-screen {
+  margin-left: 15%;
+  margin-right: 15%;
+}
+
+div.menu-icon {
+  animation: fadeIn 1.0s ease forwards;
+  display: flex;
+  float: left;
+  height: 75px;
+  width: 20%;
+  padding: 5%;
+  margin: 25px;
+  background-color: #B3B3B3;
+  border: 3px solid #999999;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+div.menu-icon span {
+  font-family: Helvetica;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+@keyframes fadeIn{
+  0% {
+    opacity:0;
+    transform: translate(0px,-25px);
+  }
+  100% {
+    transform: translate(0px,0px);
+    opacity:1;
+  }
+}

@@ -22,7 +22,7 @@ function init() {
     createItemButtons(config.kiosk.currentTab);
 
     document.getElementById('submit').addEventListener('click', function() {
-        submitOrder(shoppingCart);
+        reviewOrder();
     });
 }
 
@@ -54,15 +54,23 @@ function createItemButtons() {
 
     itemDiv.innerHTML = '';
 
+    var submitButton = document.getElementById('submit');
+    submitButton.innerHTML = 'Review Order';
+
     for (i = 0; i < menu[currentTab].items.length; i++) {
         var item = menu[currentTab].items[i];
         var itemButton = document.createElement('div');
             itemButton.className = 'itemButton animated fadeInLeft faster';
             itemButton.dataset.item = item.name;
             itemButton.dataset.target = i;
-            itemButton.style.backgroundImage = 'url(' + item.image + ')';
+            itemButton.style.backgroundImage = 'url(\'images/items/' + menu[currentTab].name + '/' + item.name + '.jpg\')';
             itemButton.addEventListener("click", function() {
-                addToCart(this.dataset.target);
+                if (menu[currentTab].name == 'Entrees') {
+                    selectToppings(this.dataset.target);
+                }
+                else {
+                    addToCart(this.dataset.target);
+                }
                 this.className = 'itemButton animated bounce fast';
             });
             itemButton.addEventListener('animationend', function() {
@@ -84,6 +92,198 @@ function createItemButtons() {
         name.style.paddingTop = (height / 2) + 'px';
         name.style.paddingBottom = (height / 2) + 'px';
     });
+}
+
+// Creates the topping selection screen once an entree is chosen
+function selectToppings(entree) {
+    var currentTab = Object.values(config.kiosk.currentTab);
+    var itemDiv = document.getElementById('items');
+    var toppings = ['Lettuce', 'Tomato', 'Onion', 'Pickle', 'Jalapeno', 'Bacon', 'Ketchup', 'Mustard', 'Mayonnaise'];
+
+    itemDiv.innerHTML = '';
+
+    var submitButton = document.getElementById('submit');
+    submitButton.innerHTML = 'Review Order';
+
+    for (i = 0; i < toppings.length; i++) {
+        var topping = toppings[i];
+        var toppingButton = document.createElement('div');
+            toppingButton.className = 'itemButton animated fadeInLeft faster';
+            toppingButton.id = 'topping';
+            toppingButton.dataset.item = toppings[i];
+            toppingButton.dataset.target = i;
+            toppingButton.style.backgroundImage = 'url(\'images/items/Toppings/' + topping + '.jpg\')';
+            toppingButton.addEventListener("click", function() {
+                this.className = 'itemButton animated bounce fast';
+                this.style.opacity = 0.5;
+                appendTopping();
+            });
+            toppingButton.addEventListener('animationend', function() {
+                this.classList.remove('bounce');
+            });
+        var itemName = document.createElement('span');
+            itemName.className = 'list-item-name';
+            itemName.textContent = toppings[i];
+        toppingButton.appendChild(itemName);
+        itemDiv.appendChild(toppingButton);
+    }
+
+    var noButton = document.createElement('div');
+        noButton.className = 'itemButton animated fadeInLeft faster';
+        noButton.id = 'noButton';
+        noButton.style.backgroundImage = 'url(\'no.png\')';
+        noButton.addEventListener("click", function() {
+            this.className = 'itemButton animated bounce fast';
+            createItemButtons();
+        });
+        noButton.addEventListener('animationend', function() {
+            this.classList.remove('bounce');
+        });
+    var yesButton = document.createElement('div');
+        yesButton.className = 'itemButton animated fadeInLeft faster';
+        yesButton.id = 'noButton';
+        yesButton.style.backgroundImage = 'url(\'yes.png\')';
+        yesButton.addEventListener("click", function() {
+            this.className = 'itemButton animated bounce fast';
+            addToCart(entree);
+            createItemButtons();
+        });
+        yesButton.addEventListener('animationend', function() {
+            this.classList.remove('bounce');
+        });
+
+    var no = document.createElement('span');
+        no.className = 'list-item-name';
+        no.textContent = 'NO';
+    var yes = document.createElement('span');
+        yes.className = 'list-item-name';
+        yes.textContent = 'YES';
+
+    noButton.appendChild(no);
+    yesButton.appendChild(yes);
+    itemDiv.appendChild(noButton);
+    itemDiv.appendChild(yesButton);
+
+    itemDiv.querySelectorAll('.list-item-name').forEach((name) => {
+        var height = name.offsetHeight;
+        name.style.paddingTop = (height / 2) + 'px';
+        name.style.paddingBottom = (height / 2) + 'px';
+    });
+}
+
+// Adds the selected toppings to the shopping cart
+function appendTopping() {
+    //TODO: append topping to shopping cart.
+}
+
+// Creates confirmation screen.
+function createConfirmationScreen() {
+    var currentTab = Object.values(config.kiosk.currentTab);
+    var itemDiv = document.getElementById('items');
+
+    itemDiv.innerHTML = '';
+
+    var submitButton = document.getElementById('submit');
+    submitButton.innerHTML = 'Review Order';
+
+    var comment = document.createElement('span');
+        comment.innerHTML = 'Does everything in your order look correct?';
+        comment.className = 'confirmation-comment';
+
+    var noButton = document.createElement('div');
+        noButton.className = 'itemButton animated fadeInLeft faster';
+        noButton.id = 'noButton';
+        noButton.style.backgroundImage = 'url(\'no.png\')';
+        noButton.addEventListener("click", function() {
+            this.className = 'itemButton animated bounce fast';
+            createItemButtons();
+        });
+        noButton.addEventListener('animationend', function() {
+            this.classList.remove('bounce');
+        });
+    var yesButton = document.createElement('div');
+        yesButton.className = 'itemButton animated fadeInLeft faster';
+        yesButton.id = 'noButton';
+        yesButton.style.backgroundImage = 'url(\'yes.png\')';
+        yesButton.addEventListener("click", function() {
+            this.className = 'itemButton animated bounce fast';
+            createPaymentScreen();
+        });
+        yesButton.addEventListener('animationend', function() {
+            this.classList.remove('bounce');
+        });
+
+    var no = document.createElement('span');
+        no.className = 'list-item-name';
+        no.textContent = 'NO';
+    var yes = document.createElement('span');
+        yes.className = 'list-item-name';
+        yes.textContent = 'YES';
+
+    noButton.appendChild(no);
+    yesButton.appendChild(yes);
+    itemDiv.appendChild(comment);
+    itemDiv.appendChild(noButton);
+    itemDiv.appendChild(yesButton);
+
+    itemDiv.querySelectorAll('.list-item-name').forEach((name) => {
+        var height = name.offsetHeight;
+        name.style.paddingTop = (height / 2) + 'px';
+        name.style.paddingBottom = (height / 2) + 'px';
+    });
+}
+
+// Creates payment screen.
+function createPaymentScreen() {
+    var currentTab = Object.values(config.kiosk.currentTab);
+    var itemDiv = document.getElementById('items');
+
+    itemDiv.innerHTML = '';
+
+    document.getElementById('submit').addEventListener('click', function() {
+        submitOrder();
+    });
+
+    var submitButton = document.getElementById('submit');
+    submitButton.innerHTML = 'Submit Order';
+
+    var nameDiv = document.createElement('div');
+    var paymentDiv = document.createElement('div');
+
+    var form1 = document.createElement('form');
+    var form2 = document.createElement('form');
+
+    var comment1 = document.createElement('span');
+        comment1.innerHTML = 'Please enter a name for this order:';
+        comment1.className = 'confirmation-comment';
+    var comment2 = document.createElement('span');
+        comment2.innerHTML = 'Please enter your card:';
+        comment2.id = 'payment-comment';
+    var nameInput = document.createElement('input');
+        nameInput.id = 'name-form';
+        nameInput.type = 'text';
+        nameInput.name = 'name';
+        nameInput.size = 50;
+    var image = document.createElement('img');
+        image.src = 'images/payment.png';
+        image.id = 'payment-options';
+
+    form1.appendChild(nameInput);
+    form2.appendChild(image);
+    nameDiv.appendChild(comment1);
+    nameDiv.appendChild(form1);
+    paymentDiv.appendChild(comment2);
+    paymentDiv.appendChild(form2);
+    itemDiv.appendChild(nameDiv);
+    itemDiv.appendChild(paymentDiv);
+
+    // TO-DO: Figure out way to invoke payment process.
+}
+
+// Processes Payment
+function processPayment() {
+    // TO-DO: Create functionality to process payment
+    submitOrder(shoppingCart);
 }
 
 function addToCart(itemIndex) {
@@ -180,9 +380,14 @@ function calculateTotals() {
     return [subtotal.toFixed(2), tax.toFixed(2), total.toFixed(2)];
 }
 
+function reviewOrder() {
+    createConfirmationScreen();
+}
+
 function submitOrder(cart) {
     [subtotal, tax, total] = calculateTotals();
     ipcRenderer.send('submitOrder', cart, total);
+    ipcRenderer.send('load-kiosk');
 }
 
 ipcRenderer.on('submitOrderResponse', (event, res) => {
