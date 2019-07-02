@@ -19,22 +19,15 @@ app.post('/submitOrder', function(req, res) {
     };
     var sqlStart = `SET autocommit = 0;
         START TRANSACTION;
-           INSERT INTO order_stats (restaurant_id, order_date, dine_in, pretax_total, tax_rate, grand_total) VALUES ('${config.restaurant.id}', curdate(), '${order.dineIn ? 1 : 0}', ${order.subtotal}, ${order.tax}, ${order.total});
+           INSERT INTO order_stats (restaurant_id, order_date, dine_in, pretax_total, tax_rate, grand_total) VALUES ('${config.restaurant.id}', '${new Date().toISOString().slice(0, 19).replace('T', ' ')}', '${order.dineIn ? 1 : 0}', ${order.subtotal}, ${order.tax}, ${order.total});
            SELECT @orderstats_id := MAX(order_id)
            FROM order_stats;`;
     var sqlMid = ``;
     var sqlEnd = `COMMIT;SET autocommit=1;`
 
     for (i = 0; i < order.cart.length; i++) {
-        if (order.cart[i].type == 'entree') {
-            sqlMid += `INSERT INTO ordered_entree (order_stats_id, entree_ordered) VALUES (@orderstats_id, '${order.cart[i].id}');`;
-        } else if (order.cart[i].type == 'side') {
-            sqlMid += `INSERT INTO ordered_side (order_stats_id, side_ordered) VALUES (@orderstats_id, '${order.cart[i].id}');`;
-        } else if (order.cart[i].type == 'dessert') {
-            sqlMid += `INSERT INTO ordered_dessert (order_stats_id, dessert_ordered) VALUES (@orderstats_id, '${order.cart[i].id}');`;
-        } else if (order.cart[i].type == 'drink') {
-            sqlMid += `INSERT INTO ordered_drink (order_stats_id, drink_ordered) VALUES (@orderstats_id, '${order.cart[i].id}');`;
-        }
+        var type = order.cart[i].type;
+        sqlMid += `INSERT INTO ordered_${type} (order_stats_id, ${type}_ordered, ${type}_start) VALUES (@orderstats_id, '${order.cart[i].id}', '${new Date().toISOString().slice(0, 19).replace('T', ' ')}');`;
     }
 
     var finalSql = sqlStart + sqlMid + sqlEnd;
@@ -48,16 +41,6 @@ app.post('/submitOrder', function(req, res) {
         });
     });
 });
-
-//app.post('/test', function(req, res) {
-//    var sql = `INSERT INTO order_stats (restaurant_id, dine_in, order_out) VALUES ('1', '1', '` + new Date().toISOString().slice(0, 19).replace('T', ' ') + `');`
-//    console.log(sql)
-//    con.query(sql, function(err, result) {
-//        if (err) throw err;
-//
-//        console.log('Sent')
-//    })
-//});
 
 app.get('/getMenu', function(req, res) {
     var sql = `SELECT JSON_OBJECT (
@@ -148,10 +131,7 @@ app.get('/getMenu', function(req, res) {
 });
 
 app.get('/getIncompleteOrder', function(req, res) {
-    var sql = `START TRANSACTION;
-	    SELECT @max_order := MAX(order_id) FROM order_stats;
-	    SELECT * FROM ordered_${req.body.terminal} WHERE order_stats_id > @max_order - ${req.body.maxCols} AND ${req.body.terminal}_end IS NULL;
-    COMMIT;`
+    var sql = `SELECT * FROM ordered_${req.body.type} WHERE ${req.body.type}_end IS NULL;`
 
     con.query(sql, function(err, result) {
         if (err) throw err;
@@ -159,22 +139,31 @@ app.get('/getIncompleteOrder', function(req, res) {
         var orders = [];
         var currentOrder = null;
 
-        for (i = 0; i < result[2].length; i++) {
-            if (result[2][i].order_stats_id % 999 != currentOrder) {
-                orders.push({orderNumber: result[2][i].order_stats_id % 999, items: [], orderId: result[2][i].order_stats_id});
+        for (i = 0; i < result.length; i++) {
+            if (result[i].order_stats_id % 999 != currentOrder) {
+                orders.push({orderNumber: result[i].order_stats_id % 999, items: [], orderId: result[i].order_stats_id});
             }
-            currentOrder = result[2][i].order_stats_id % 999;
+            currentOrder = result[i].order_stats_id % 999;
         }
-        for (i = 0; i < result[2].length; i++) {
+        for (i = 0; i < result.length; i++) {
             for (x = 0; x < orders.length; x++) {
-                if (result[2][i].order_stats_id % 999 == orders[x].orderNumber) {
-                    orders[x].items.push(result[2][i][req.body.terminal + '_ordered']);
+                if (result[i].order_stats_id % 999 == orders[x].orderNumber) {
+                    orders[x].items.push(result[i][req.body.type + '_ordered']);
                 }
             }
         }
 
         res.end(JSON.stringify(orders))
     });
+});
+
+app.post('/completeOrder', function(req, res) {
+    var sql = `UPDATE ordered_${req.body.type} SET ${req.body.type}_end = '${new Date().toISOString().slice(0, 19).replace('T', ' ')}' WHERE order_stats_id = ${req.body.orderId}`;
+    con.query(sql, function(err, result) {
+        if (err) throw err;
+    });
+
+    res.end(req.body.orderId);
 });
 
 app.listen(3000, function(err) {

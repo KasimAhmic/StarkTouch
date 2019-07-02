@@ -1,11 +1,13 @@
 const { app, BrowserWindow } = require('electron');
 const { ipcMain } = require('electron');
+const { readFileSync } = require('fs')
 var request = require('request');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 let configFile = require('./config.json');
+let compiledconfig = readFileSync('./test.json')
 
 // Temporary JSON order files. To be replaced with database queries
 let orderProgressFile = require(configFile.global.orderProgressFile);
@@ -31,7 +33,11 @@ function createWindow () {
     //win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
 
     // Load index.html file of configured component
-    win.loadFile('components/' + configFile.global.componentToLaunch + '/welcome.html');
+    if (configFile.componentToLaunch == 'kiosk') {
+        win.loadFile('components/kiosk/welcome.html');
+    } else {
+        win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
+    }
 
     // Show window once all assets are loaded
     win.once('ready-to-show', () => {
@@ -165,19 +171,22 @@ ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
 });
 
 // Searches database for incompelete orders and returns them
-ipcMain.on('getIncompleteOrder', (event) => {
+ipcMain.on('getIncompleteOrder', (event, type) => {
     var options = {
         method: 'GET',
         url: 'http://localhost:3000/getIncompleteOrder',
         form: {
-            terminal: configFile.terminal.type,
-            maxCols: configFile.terminal.maxColumns
+            type: configFile.terminal.type
         }
     };
 
     request(options, function (err, response, body) {
         if (err) throw err;
-        event.reply('getIncompleteOrderResponse', body);
+        if (type == 'main') {
+            event.reply('getIncompleteOrderResponse', body);
+        } else {
+            event.reply('getAdditionalOrderResponse', body);
+        }
     });
 });
 
@@ -192,6 +201,36 @@ ipcMain.on('getIndex', (event, type) => {
     } else {
         event.returnValue = 3;
     }
+});
+
+ipcMain.on('completeOrder', (event, orderId) => {
+    var options = {
+        method: 'POST',
+        url: 'http://localhost:3000/completeOrder',
+        form: {
+            orderId: orderId,
+            type: configFile.terminal.type
+        }
+    };
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.reply('completeOrderResponse', body);
+    });
+});
+
+ipcMain.on('checkForUpdates', (event) => {
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/getIncompleteOrder',
+        form: {
+            type: configFile.terminal.type
+        }
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.reply('checkForUpdatesResponse', body);
+    });
 });
 
 // TO BE REMOVED - Legacy event handler
