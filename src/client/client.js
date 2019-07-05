@@ -92,7 +92,7 @@ ipcMain.on('getMenu', (event) => {
         if (error) {
             throw new Error(error);
         }
-        event.returnValue = JSON.parse(body);
+        event.returnValue = body;
     });
 });
 

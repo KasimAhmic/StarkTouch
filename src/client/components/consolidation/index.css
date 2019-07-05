@@ -33,24 +33,15 @@ header div:last-child {
 main {
     height: calc(100% - 90px);
 }
-main > div {
+main div {
     display: inline-block;
     width: 50%;
     height: 100%;
     border-right: 2px solid #777;
     box-sizing: border-box;
 }
-main > div:last-child {
+main div:last-child {
     border: none;
-}
-.order-number,
-.name {
-    display: inline-block;
-    width: 50%;
-    box-sizing: border-box;
-}
-.order-number {
-    border-right: 2px solid #fff;
 }
 main span {
     display: block;

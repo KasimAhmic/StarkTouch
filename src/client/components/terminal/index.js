@@ -46,7 +46,7 @@ ipcRenderer.on('getIncompleteOrderResponse', (event, res) => {
                     item.dataset.itemIndex = itemIndex;
                     item.className = 'item';
                     item.id = 'item-' + i + '-' + orders[index].orderId + '-' + itemIndex;
-                    item.innerHTML = menu[terminalMenuIndex].items[itemIndex - 1].name;
+                    item.innerHTML = menu[terminalMenuIndex].items[itemIndex - 1].description;
                     item.addEventListener('click', function() {
                         updateOrder(this.id);
                     });
@@ -131,7 +131,7 @@ ipcRenderer.on('checkForUpdatesResponse', (event, res) => {
                         listItem.dataset.itemIndex = itemIndex;
                         listItem.className = 'item';
                         listItem.id = 'item-' + index + '-' + additionalOrdersArr[o].orderId + '-' + itemIndex;
-                        listItem.innerHTML = menu[terminalMenuIndex].items[itemIndex - 1].name;
+                        listItem.innerHTML = menu[terminalMenuIndex].items[itemIndex - 1].description;
                         listItem.addEventListener('click', function() {
                             updateOrder(this.id);
                         });

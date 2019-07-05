@@ -17,6 +17,7 @@ function init() {
 
     config = ipcRenderer.sendSync('request-config');
     menu = JSON.parse(ipcRenderer.sendSync('getMenu'));
+    console.log(menu)
 
     createCategoryButtons();
     createItemButtons(config.kiosk.currentTab);
@@ -56,9 +57,9 @@ function createItemButtons() {
         var item = menu[currentTab].items[i];
         var itemButton = document.createElement('div');
             itemButton.className = 'itemButton animated fadeInLeft faster';
-            itemButton.dataset.item = item.name;
+            itemButton.dataset.item = item.description;
             itemButton.dataset.target = i;
-            itemButton.style.backgroundImage = 'url(\'images/items/' + menu[currentTab].name + '/' + item.name + '.jpg\')';
+            itemButton.style.backgroundImage = 'url(\'images/items/' + menu[currentTab].name + '/' + item.description + '.jpg\')';
             itemButton.addEventListener("click", function() {
                 if (menu[currentTab].name == 'Entrees') {
                     selectToppings(this.dataset.target);
@@ -73,10 +74,10 @@ function createItemButtons() {
             });
         var itemPrice = document.createElement('span');
             itemPrice.className = 'list-item-price';
-            itemPrice.textContent = '$' + item.cost;
+            itemPrice.textContent = '$' + item[Object.keys(item)[4]];
         var itemName = document.createElement('span');
             itemName.className = 'list-item-name';
-            itemName.textContent = item.name;
+            itemName.textContent = item.description;
         itemButton.appendChild(itemPrice);
         itemButton.appendChild(itemName);
         itemDiv.appendChild(itemButton);
@@ -278,8 +279,14 @@ function processPayment() {
 
 function addToCart(itemIndex) {
     var item = menu[config.kiosk.currentTab].items[itemIndex];
+    var tempObject = {
+        "id": Object.values(item)[0],
+        "type": Object.keys(item)[0].slice(0,-3),
+        "name": item.description,
+        "cost": Object.values(item)[4]
+    }
 
-    shoppingCart.push(item);
+    shoppingCart.push(tempObject);
     updateCart();
 }
 

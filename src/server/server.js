@@ -43,91 +43,23 @@ app.post('/submitOrder', function(req, res) {
 });
 
 app.get('/getMenu', function(req, res) {
-    var sql = `SELECT JSON_OBJECT (
-        "0", JSON_OBJECT (
-            "name", "Entrees",
-            "items", (
-                SELECT CAST(
-                    CONCAT("[",
-                        GROUP_CONCAT(
-                            JSON_OBJECT (
-                                "id", entree_id,
-                                "name", description,
-                                "cost", entree_cost,
-                                "active", active,
-                                "type", "entree"
-                            )
-                        ),
-                    "]") AS JSON
-                ) FROM entree
-            )
-        ),
-        "1", JSON_OBJECT (
-            "name", "Sides",
-            "items", (
-                SELECT CAST(
-                    CONCAT("[",
-                        GROUP_CONCAT(
-                            JSON_OBJECT (
-                                "id", side_id,
-                                "name", description,
-                                "cost", side_cost,
-                                "active", active,
-                                "type", "side"
-                            )
-                        ),
-                    "]") AS JSON
-                ) FROM side
-            )
-        ),
-        "2", JSON_OBJECT (
-            "name", "Desserts",
-            "items", (
-                SELECT CAST(
-                    CONCAT("[",
-                        GROUP_CONCAT(
-                            JSON_OBJECT (
-                                "id", dessert_id,
-                                "name", description,
-                                "cost", dessert_cost,
-                                "active", active,
-                                "type", "dessert"
-                            )
-                        ),
-                    "]") AS JSON
-                ) FROM dessert
-            )
-        ),
-        "3", JSON_OBJECT (
-            "name", "Drinks",
-            "items", (
-                SELECT CAST(
-                    CONCAT("[",
-                        GROUP_CONCAT(
-                            JSON_OBJECT (
-                                "id", drink_id,
-                                "name", description,
-                                "cost", drink_cost,
-                                "active", active,
-                                "type", "drink"
-                            )
-                        ),
-                    "]") AS JSON
-                ) FROM drink
-            )
-        )
-    );`;
+    var sql = `START TRANSACTION;SELECT * FROM entree;SELECT * FROM side;SELECt * FROM drink;SELECT * from dessert;COMMIT;`
 
     con.query(sql, function(err, result) {
         if (err) throw err;
-        var parsedJSON = {};
+        result.shift(); // Remove first entry in result object
+        result.pop();   // Remove last entry in result object
 
-        for (i = 0; i < result.length; i++) {
-            parsedJSON = ((Object.values(result[i])[0]));
+        var parsedJSON = {}; // Create new object
+
+        for (i = 0; i < result.length; i++) {                           // Loop through result object
+            var id = Object.keys(result[i][0])[0].slice(0,-3);          // Get the id column name
+            var name = id.charAt(0).toUpperCase() + id.slice(1) + 's';  // Format the id
+            parsedJSON[i] = {"name": name, "items": result[i]};         // Populate the previously created object
         }
 
         res.end(JSON.stringify(parsedJSON));
-    });
+    })
 });
 
 app.get('/getIncompleteOrder', function(req, res) {
