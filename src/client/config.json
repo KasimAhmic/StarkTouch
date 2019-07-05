@@ -1,6 +1,6 @@
 {
     "global": {
-        "componentToLaunch": "terminal",
+        "componentToLaunch": "consolidation",
         "orderProgressFile": "./orderProgress.json",
         "orderReadyFile": "./orderReady.json"
     },
@@ -12,6 +12,6 @@
         "type": "dessert"
     },
     "server": {
-
+        "serverURL": "http://127.0.0.1:3000"
     }
 }

@@ -1,68 +1,36 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html>
     <head>
+        <title>Consolidation</title>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="reset.css">
+        <link rel="stylesheet" href="../fonts.min.css">
         <link rel="stylesheet" href="index.css">
-        <title>Customer Consolidation</title>
     </head>
     <body>
-        <!-- First column: In Progress -->
-        <div id="column-1">
-            <div class="title">IN PROGRESS</div>
-            <!-- Order column -->
-            <div class="order">
-                <div id="order">ORDER</div>
-                <div class="order-list">
-                    <ul id="order-list-progress">
-                        <li>247</li>
-                        <li>248</li>
-                        <li>249</li>
-                        <li>250</li>
-                    </ul>
+        <header>
+            <div>IN PROGRESS</div>
+            <div>READY</div>
+        </header>
+        <main>
+            <div id="in-progress">
+                <div class="order-number">
+                    <span>Order Number</span>
+                </div>
+                <div class="name">
+                    <span>Name</span>
                 </div>
             </div>
-            <!-- Name column -->
-            <div class="name">
-                <div id="name">NAME</div>
-                <div class="name-list">
-                    <ul id="name-list-progress">
-                        <li>Kathy</li>
-                        <li>Joe</li>
-                        <li>Mike</li>
-                        <li>Jess</li>
-                    </ul>
+            <div id="ready">
+                <div class="order-number">
+                    <span>Order Number</span>
+                </div>
+                <div class="name">
+                    <span>Name</span>
                 </div>
             </div>
-        </div>
-        <!-- Second column: Ready -->
-        <div id="column-2">
-            <div class="title">READY TO GO</div>
-            <!-- Order column -->
-            <div class="order">
-                <div id="order">ORDER</div>
-                <div class="order-list">
-                    <ul id="order-list-ready">
-                        <li>243</li>
-                        <li>244</li>
-                        <li>245</li>
-                        <li>246</li>
-                    </ul>
-                </div>
-            </div>
-            <!-- Name column -->
-            <div class="name">
-                <div id="name">NAME</div>
-                <div class="name-list">
-                    <ul id="name-list-ready">
-                        <li>Andy</li>
-                        <li>Pedro</li>
-                        <li>Kim</li>
-                        <li>John</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <script src="index.js"></script>
+        </main>
+        <footer>
+            <p>Thank you for your service!</p>
+        </footer>
     </body>
 </html>

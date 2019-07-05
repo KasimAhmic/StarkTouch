@@ -131,7 +131,7 @@ app.get('/getMenu', function(req, res) {
 });
 
 app.get('/getIncompleteOrder', function(req, res) {
-    var sql = `SELECT * FROM ordered_${req.body.type} WHERE ${req.body.type}_end IS NULL;`
+    var sql = `SELECT * FROM ordered_${req.body.type} WHERE ${req.body.type}_end IS NULL;`;
 
     con.query(sql, function(err, result) {
         if (err) throw err;

@@ -2,17 +2,6 @@ const { ipcRenderer } = require('electron');
 const menu = JSON.parse(ipcRenderer.sendSync('getMenu'));
 const config = ipcRenderer.sendSync('request-config');
 var terminalMenuIndex = ipcRenderer.sendSync('getIndex', config.terminal.type);
-var itemIndex;
-var columnTemplate = `
-<div class="order-column" data-availability="available" style="width: ${100 / config.terminal.maxColumns + '%'}">
-    <div class="order-number">
-        <span></span>
-    </div>
-    <div class="order-contents">
-        <ul class="list"></ul>
-    </div>
-</div>`;
-var orders;
 
 function init() {
     generateColumns(config.terminal.maxColumns);
@@ -22,6 +11,16 @@ function init() {
 }
 
 function generateColumns(maxCols) {
+    var columnTemplate = `
+    <div class="order-column" data-availability="available" style="width: ${100 / config.terminal.maxColumns + '%'}">
+        <div class="order-number">
+            <span></span>
+        </div>
+        <div class="order-contents">
+            <ul class="list"></ul>
+        </div>
+    </div>`;
+
     for (i = 0; i < maxCols; i++) {
         document.getElementById('column-container').innerHTML += columnTemplate;
     }
@@ -30,7 +29,7 @@ function generateColumns(maxCols) {
 }
 
 ipcRenderer.on('getIncompleteOrderResponse', (event, res) => {
-    orders = JSON.parse(res);
+    var orders = JSON.parse(res);
 
     document.querySelectorAll('.order-column').forEach((element, index) => {
         if (orders[index] != undefined) {

@@ -1,82 +1,63 @@
 @charset "UTF-8";
 
 /* Styles used to match original concept design for consolidation screen */
-body {
+html, body {
     width: 100%;
-    font-family: Helvetica;
+    height: 100%;
+}
+body {
     background-color: #f2f2f2;
-}
-#column-1 {
-    width: 50%;
-    height: 100%;
-    float: left;
-    display: inline-block;
-    border: 1px solid #999999;
+    font-size: 0;
+    margin: 0;
+    padding: 0;
 }
 
-#column-2 {
-    width: 50%;
-    height: 100%;
-    float: right;
-    display: inline-block;
-    border: 1px solid #999999;
-}
-
-.title {
-    text-align: center;
-    font-size: 65px;
+header {
+    width: 100%;
     background-color: #29ABE2;
     color: white;
-    line-height: 144px;
-    border: 1px solid #999999;
 }
-
-.order {
-    width: 50%;
-    float: left;
+header div {
     display: inline-block;
+    width: 50%;
+    font: 500 58px Raleway;
+    text-align: center;
+    padding: 10px 0;
+    border-right: 2px solid #fff;
+    border-bottom: 1px solid #000;
+    box-sizing: border-box;
 }
-
+header div:last-child {
+    border-right: none;
+}
+main {
+    height: calc(100% - 90px);
+}
+main > div {
+    display: inline-block;
+    width: 50%;
+    height: 100%;
+    border-right: 2px solid #777;
+    box-sizing: border-box;
+}
+main > div:last-child {
+    border: none;
+}
+.order-number,
 .name {
-    width: 50%;
-    float: right;
     display: inline-block;
+    width: 50%;
+    box-sizing: border-box;
 }
-
-#order {
-    text-align: center;
-    font-size: 35px;
-    background-color: #CCCCCC;
-    line-height: 72px;
-    border: 1px solid #999999;
+.order-number {
+    border-right: 2px solid #fff;
 }
-
-#name {
-    text-align: center;
-    font-size: 35px;
-    background-color: #CCCCCC;
-    line-height: 72px;
-    border: 1px solid #999999;
-}
-
-.order-list {
+main span {
+    display: block;
     width: 100%;
+    padding: 10px 0;
+    background: #1c769c;
+    font: 28px Raleway;
+    color: #fff;
     text-align: center;
-    border: 1px solid #999999;
-}
-
-.name-list {
-    width: 100%;
-    text-align: center;
-    border: 1px solid #999999;
-}
-
-.order-list > ul li {
-    font-size: 25px;
-    line-height: 48px;
-}
-
-.name-list > ul li {
-    font-size: 25px;
-    line-height: 48px;
 }

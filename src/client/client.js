@@ -9,10 +9,6 @@ let win;
 let configFile = require('./config.json');
 let compiledconfig = readFileSync('./test.json')
 
-// Temporary JSON order files. To be replaced with database queries
-let orderProgressFile = require(configFile.global.orderProgressFile);
-let orderReadyFile = require(configFile.global.orderReadyFile);
-
 // Chrome debug boolean
 var debug = true;
 
@@ -90,7 +86,7 @@ ipcMain.on('request-config', (event) => {
 ipcMain.on('getMenu', (event) => {
     var options = {
         method: 'GET',
-        url: 'http://localhost:3000/getMenu'
+        url: configFile.server.serverURL + '/getMenu'
     };
     request(options, function (error, response, body) {
         if (error) {
@@ -153,7 +149,7 @@ ipcMain.on('load-manager', (event) => {
 ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
     var options = {
         method: 'POST',
-        url: 'http://localhost:3000/submitOrder',
+        url: configFile.server.serverURL + '/submitOrder',
         form: {
             cart: JSON.stringify(cart),
             name: name,
@@ -174,7 +170,7 @@ ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
 ipcMain.on('getIncompleteOrder', (event, type) => {
     var options = {
         method: 'GET',
-        url: 'http://localhost:3000/getIncompleteOrder',
+        url: configFile.server.serverURL + '/getIncompleteOrder',
         form: {
             type: configFile.terminal.type
         }
@@ -206,7 +202,7 @@ ipcMain.on('getIndex', (event, type) => {
 ipcMain.on('completeOrder', (event, orderId) => {
     var options = {
         method: 'POST',
-        url: 'http://localhost:3000/completeOrder',
+        url: configFile.server.serverURL + '/completeOrder',
         form: {
             orderId: orderId,
             type: configFile.terminal.type
@@ -221,7 +217,7 @@ ipcMain.on('completeOrder', (event, orderId) => {
 ipcMain.on('checkForUpdates', (event) => {
     var options = {
         method: 'GET',
-        url: 'http://localhost:3000/getIncompleteOrder',
+        url: configFile.server.serverURL + '/getIncompleteOrder',
         form: {
             type: configFile.terminal.type
         }
