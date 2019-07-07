@@ -1,8 +1,6 @@
 {
     "global": {
-        "componentToLaunch": "terminal",
-        "orderProgressFile": "./orderProgress.json",
-        "orderReadyFile": "./orderReady.json"
+        "componentToLaunch": "consolidation"
     },
     "kiosk": {
         "currentTab": "0"

@@ -43,12 +43,10 @@ app.post('/submitOrder', function(req, res) {
 });
 
 app.get('/getMenu', function(req, res) {
-    var sql = `START TRANSACTION;SELECT * FROM entree;SELECT * FROM side;SELECt * FROM drink;SELECT * from dessert;COMMIT;`
+    var sql = `SELECT * FROM entree; SELECT * FROM side; SELECT * FROM drink; SELECT * from dessert;`
 
     con.query(sql, function(err, result) {
         if (err) throw err;
-        result.shift(); // Remove first entry in result object
-        result.pop();   // Remove last entry in result object
 
         var parsedJSON = {}; // Create new object
 

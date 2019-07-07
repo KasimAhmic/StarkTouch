@@ -6,18 +6,10 @@ var menu;
 var config;
 var shoppingCart = [];
 
-// Debug
-var dubug;
-
 // Main Functions
 function init() {
-    // Debug related initilization
-    debug = ipcRenderer.sendSync('request-debug');
-    if (debug) {runDebug()}
-
     config = ipcRenderer.sendSync('request-config');
     menu = JSON.parse(ipcRenderer.sendSync('getMenu'));
-    console.log(menu)
 
     createCategoryButtons();
     createItemButtons(config.kiosk.currentTab);
@@ -407,21 +399,6 @@ function capitalize(str) {
 }
 function removeSpaces(str) {
     return str.replace(/\s+/g, '-');
-}
-function runDebug() {
-    var debugButton = document.createElement('button');
-        debugButton.className = 'debug';
-        debugButton.textContent = 'Reload';
-        debugButton.addEventListener('click', function() {
-            location.reload();
-        });
-    document.body.appendChild(debugButton);
-
-    document.addEventListener('keydown', function(event) {
-        if (event.code == 'F5') {
-            location.reload();
-        }
-    });
 }
 
 init();
