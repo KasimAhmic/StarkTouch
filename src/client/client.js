@@ -9,9 +9,6 @@ let win;
 let configFile = require('./config.json');
 let compiledconfig = readFileSync('./test.json')
 
-// Chrome debug boolean
-var debug = true;
-
 function createWindow () {
     // Create the browser window.
     win = new BrowserWindow({
@@ -29,8 +26,8 @@ function createWindow () {
     //win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
 
     // Load index.html file of configured component
-    if (configFile.componentToLaunch == 'kiosk') {
-        win.loadFile('components/' + configFile.global.componentToLaunch + '/welcome.html');
+    if (configFile.global.componentToLaunch == 'kiosk') {
+        win.loadFile('components/kiosk/welcome.html');
     } else {
         win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
     }
@@ -41,9 +38,7 @@ function createWindow () {
     })
 
     // Open the DevTools
-    if (debug) {
-        win.webContents.openDevTools();
-    }
+    win.webContents.openDevTools();
 
     // Emitted when the window is closed.
     win.on('closed', () => {
@@ -229,11 +224,19 @@ ipcMain.on('checkForUpdates', (event) => {
     });
 });
 
+ipcMain.on('trackOrders', (event) => {
+    var options = {
+        method: 'GET',
+        url: configFile.server.serverURL + '/getIncotrackOrdersmpleteOrder'
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.reply('trackOrdersResponse', body);
+    });
+})
+
 // TO BE REMOVED - Legacy event handler
 ipcMain.on('config-order', (event) => {
     event.returnValue = [configFile, orderProgressFile, orderReadyFile];
-});
-
-ipcMain.on('request-debug', (event) => {
-    event.returnValue = debug;
 });
