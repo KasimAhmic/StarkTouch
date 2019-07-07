@@ -5,6 +5,7 @@ const { ipcRenderer } = require('electron');
 var menu;
 var config;
 var shoppingCart = [];
+var toppingList = [];
 
 // Main Functions
 function init() {
@@ -89,6 +90,7 @@ function selectToppings(entree) {
     var toppings = ['Lettuce', 'Tomato', 'Onion', 'Pickle', 'Jalapeno', 'Bacon', 'Ketchup', 'Mustard', 'Mayonnaise'];
 
     itemDiv.innerHTML = '';
+    toppingList = [];
 
     for (i = 0; i < toppings.length; i++) {
         var topping = toppings[i];
@@ -99,9 +101,15 @@ function selectToppings(entree) {
             toppingButton.dataset.target = i;
             toppingButton.style.backgroundImage = 'url(\'images/items/Toppings/' + topping + '.jpg\')';
             toppingButton.addEventListener("click", function() {
-                this.className = 'itemButton animated bounce fast';
-                this.style.opacity = 0.5;
-                appendTopping();
+                if (this.style.opacity == 0.5) {
+                    this.className = 'itemButton animated bounce fast';
+                    this.style.opacity = 1.0;
+                    updateToppings(false, this.textContent);
+                } else {
+                    this.className = 'itemButton animated bounce fast';
+                    this.style.opacity = 0.5;
+                    updateToppings(true, this.textContent);
+                }
             });
             toppingButton.addEventListener('animationend', function() {
                 this.classList.remove('bounce');
@@ -116,8 +124,8 @@ function selectToppings(entree) {
 
     var noButton = document.createElement('div');
         noButton.className = 'itemButton animated fadeInLeft faster';
-        noButton.id = 'noButton';
-        noButton.style.backgroundImage = 'url(\'no.png\')';
+        noButton.id = 'noTopping';
+        noButton.style.backgroundImage = 'url(\'images/no.png\')';
         noButton.addEventListener("click", function() {
             this.className = 'itemButton animated bounce fast';
             createItemButtons();
@@ -127,8 +135,8 @@ function selectToppings(entree) {
         });
     var yesButton = document.createElement('div');
         yesButton.className = 'itemButton animated fadeInLeft faster';
-        yesButton.id = 'noButton';
-        yesButton.style.backgroundImage = 'url(\'yes.png\')';
+        yesButton.id = 'yesTopping';
+        yesButton.style.backgroundImage = 'url(\'images/yes.png\')';
         yesButton.addEventListener("click", function() {
             this.className = 'itemButton animated bounce fast';
             addToCart(entree);
@@ -158,8 +166,15 @@ function selectToppings(entree) {
 }
 
 // Adds the selected toppings to the shopping cart
-function appendTopping() {
-    //TODO: append topping to shopping cart.
+function updateToppings(answer, topping) {
+    var index = toppingList.indexOf(topping);
+    if (answer) {
+        //TODO: append topping to list.
+        toppingList.push(topping);
+    } else {
+        //TODO: remove topping from list.
+        toppingList.splice(index, 1);
+    }
 }
 
 // Creates confirmation screen.
@@ -176,7 +191,7 @@ function createConfirmationScreen() {
     var noButton = document.createElement('div');
         noButton.className = 'itemButton animated fadeInLeft faster';
         noButton.id = 'noButton';
-        noButton.style.backgroundImage = 'url(\'no.png\')';
+        noButton.style.backgroundImage = 'url(\'images/no.png\')';
         noButton.addEventListener("click", function() {
             this.className = 'itemButton animated bounce fast';
             createItemButtons();
@@ -186,8 +201,8 @@ function createConfirmationScreen() {
         });
     var yesButton = document.createElement('div');
         yesButton.className = 'itemButton animated fadeInLeft faster';
-        yesButton.id = 'noButton';
-        yesButton.style.backgroundImage = 'url(\'yes.png\')';
+        yesButton.id = 'yesButton';
+        yesButton.style.backgroundImage = 'url(\'images/yes.png\')';
         yesButton.addEventListener("click", function() {
             this.className = 'itemButton animated bounce fast';
             createPaymentScreen();
@@ -230,6 +245,15 @@ function createPaymentScreen() {
             submitOrder(shoppingCart);
         });
 
+    var load = document.createElement('div');
+        load.className = 'circle-loader';
+        load.id = 'loader-icon';
+    var checkmark = document.createElement('div');
+        checkmark.className = 'checkmark draw';
+        checkmark.id = 'checkmark-icon';
+
+    load.style.opacity = 0.0;
+
     var nameDiv = document.createElement('div');
     var paymentDiv = document.createElement('div');
 
@@ -250,6 +274,15 @@ function createPaymentScreen() {
     var image = document.createElement('img');
         image.src = 'images/payment.png';
         image.id = 'payment-options';
+        image.addEventListener('click', function() {
+            load.style.opacity = 1.0
+            setTimeout(function() {
+                var loader = document.getElementById('loader-icon');
+                    loader.classList.toggle('load-complete');
+                var check = document.getElementById('checkmark-icon');
+                    check.style.display = 'inline-block'
+            }, 5000);
+        });
 
     form1.appendChild(nameInput);
     form2.appendChild(image);
@@ -257,10 +290,37 @@ function createPaymentScreen() {
     nameDiv.appendChild(form1);
     paymentDiv.appendChild(comment2);
     paymentDiv.appendChild(form2);
+    load.appendChild(checkmark);
     itemDiv.appendChild(nameDiv);
+    itemDiv.appendChild(load);
     itemDiv.appendChild(paymentDiv);
 
     // TO-DO: Figure out way to invoke payment process.
+}
+
+// Creates finalization page
+function createFinalScreen(name) {
+    var currentTab = Object.values(config.kiosk.currentTab);
+    var itemDiv = document.getElementById('items');
+
+    itemDiv.innerHTML = '';
+
+    // TODO: Pull order number and replace with random number generator.
+    var orderNum = Math.floor(Math.random() * 20);
+
+    var thankDiv = document.createElement('div');
+
+    var comment1 = document.createElement('span');
+        comment1.innerHTML = 'Thank you ' + name + ' for placing your order!<br><br>';
+        comment1.className = 'confirmation-comment';
+
+    var comment2 = document.createElement('span');
+        comment2.innerHTML = 'Order number ' + orderNum + ' will be out shortly.';
+        comment2.className = 'confirmation-comment';
+
+    thankDiv.appendChild(comment1);
+    thankDiv.appendChild(comment2);
+    itemDiv.appendChild(thankDiv);
 }
 
 // Processes Payment
@@ -271,13 +331,23 @@ function processPayment() {
 
 function addToCart(itemIndex) {
     var item = menu[config.kiosk.currentTab].items[itemIndex];
-    var tempObject = {
-        "id": Object.values(item)[0],
-        "type": Object.keys(item)[0].slice(0,-3),
-        "name": item.description,
-        "cost": Object.values(item)[4]
+    if (config.kiosk.currentTab == 0) {
+        var tempObject = {
+            "id": Object.values(item)[0],
+            "type": Object.keys(item)[0].slice(0,-3),
+            "name": item.description,
+            "cost": Object.values(item)[4],
+            "toppings": toppingList
+        }
     }
-
+    else {
+        var tempObject = {
+            "id": Object.values(item)[0],
+            "type": Object.keys(item)[0].slice(0,-3),
+            "name": item.description,
+            "cost": Object.values(item)[4]
+        }
+    }
     shoppingCart.push(tempObject);
     updateCart();
 }
@@ -289,6 +359,7 @@ function updateCart() {
     var editButton;
     var itemName;
     var itemPrice;
+    var itemToppings;
 
     cartContainer.innerHTML = '';
 
@@ -315,15 +386,26 @@ function updateCart() {
         itemName.className = 'cart-item-name';
         itemName.textContent = shoppingCart[i].name;
 
-        // Item Price
-        itemPrice = document.createElement('span');
-        itemPrice.className = 'cart-item-price';
-        itemPrice.textContent = shoppingCart[i].price;
-
         // Append elements to entry container
         entryContainer.appendChild(removeButton);
         //entryContainer.appendChild(editButton); // TODO: Implement edit button
         entryContainer.appendChild(itemName);
+
+        // Item Toppings - still needs work done.
+        if (false/* shoppingCart[i].type == 'Entree' */) {
+            for (i = 0; i < toppingList.length; i++) {
+                itemToppings = document.createElement('span');
+                itemToppings.className = 'cart-item-name';
+                itemToppings.id = 'cart-item-topping';
+                itemToppings.innerHTML = '<br>' + toppingList[i];
+                entryContainer.appendChild(itemToppings);
+            }
+        }
+
+        // Item Price
+        itemPrice = document.createElement('span');
+        itemPrice.className = 'cart-item-price';
+        //itemPrice.textContent = shoppingCart[i].price;
         entryContainer.appendChild(itemPrice);
 
         // Append entry container to shopping cart
@@ -370,11 +452,12 @@ function submitOrder(cart) {
     [subtotal, tax, total] = calculateTotals();
     var name = document.getElementById('name-form').value;
     ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total);
+    createFinalScreen(name);
 }
 
 ipcRenderer.on('submitOrderResponse', (event, res) => {
     console.log(res);
-    
+
     setTimeout(function() {
         ipcRenderer.send('load-kiosk');
     }, 5000);

@@ -6,15 +6,17 @@ function init() {
 }
 
 function createEventListeners() {
-    var button1 = document.getElementById('button-1');
-    var button2 = document.getElementById('button-2');
+    var button = document.getElementById('button');
 
-    button1.addEventListener('click', function() {
-        ipcRenderer.sendSync('load-settings');
-    });
-    button2.addEventListener('click', function() {
+    button.addEventListener('click', function() {
         ipcRenderer.sendSync('load-menu');
     });
+
+    //document.querySelectorAll('.list-item-name').forEach((name) => {
+    //    var height = name.offsetHeight;
+    //    name.style.paddingTop = (height / 2) + 'px';
+    //    name.style.paddingBottom = (height / 2) + 'px';
+    //});
 }
 
 init();
