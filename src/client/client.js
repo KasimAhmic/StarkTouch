@@ -30,7 +30,7 @@ function createWindow () {
 
     // Load index.html file of configured component
     if (configFile.componentToLaunch == 'kiosk') {
-        win.loadFile('components/kiosk/welcome.html');
+        win.loadFile('components/' + configFile.global.componentToLaunch + '/welcome.html');
     } else {
         win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
     }
