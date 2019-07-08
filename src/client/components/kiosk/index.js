@@ -299,14 +299,11 @@ function createPaymentScreen() {
 }
 
 // Creates finalization page
-function createFinalScreen(name) {
+function createFinalScreen(name, orderNum) {
     var currentTab = Object.values(config.kiosk.currentTab);
     var itemDiv = document.getElementById('items');
 
     itemDiv.innerHTML = '';
-
-    // TODO: Pull order number and replace with random number generator.
-    var orderNum = Math.floor(Math.random() * 20);
 
     var thankDiv = document.createElement('div');
 
@@ -452,11 +449,11 @@ function submitOrder(cart) {
     [subtotal, tax, total] = calculateTotals();
     var name = document.getElementById('name-form').value;
     ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total);
-    createFinalScreen(name);
 }
 
 ipcRenderer.on('submitOrderResponse', (event, res) => {
-    console.log(res);
+    var res = JSON.parse(res);
+    createFinalScreen(res.name, res.orderNumber);
 
     setTimeout(function() {
         ipcRenderer.send('load-kiosk');

@@ -6,8 +6,7 @@ var request = require('request');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-let configFile = require('./config.json');
-let compiledconfig = readFileSync('./test.json')
+let configFile = JSON.parse(readFileSync('./config.json'));
 
 function createWindow () {
     // Create the browser window.

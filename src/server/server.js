@@ -37,7 +37,7 @@ app.post('/submitOrder', function(req, res) {
         console.log("Order submitted.");
     }).on('end', function() {
         generateOrderNumber(function(number) {
-            res.end(`Thank you ${order.name}! Your order number is ${number} and will be ready shortly!`);
+            res.end(JSON.stringify({orderNumber: number, name: order.name}));
         });
     });
 });
