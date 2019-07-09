@@ -7,10 +7,18 @@ var config;
 var shoppingCart = [];
 var toppingList = [];
 
+// Debug
+var dubug;
+
 // Main Functions
 function init() {
+    // Debug related initilization
+    debug = ipcRenderer.sendSync('request-debug');
+    if (debug) {runDebug()}
+
     config = ipcRenderer.sendSync('request-config');
     menu = JSON.parse(ipcRenderer.sendSync('getMenu'));
+    console.log(menu)
 
     createCategoryButtons();
     createItemButtons(config.kiosk.currentTab);
@@ -333,20 +341,20 @@ function addToCart(itemIndex) {
     var item = menu[config.kiosk.currentTab].items[itemIndex];
     if (config.kiosk.currentTab == 0) {
         var tempObject = {
-            "id": Object.values(item)[0],
-            "type": Object.keys(item)[0].slice(0,-3),
-            "name": item.description,
-            "cost": Object.values(item)[4],
-            "toppings": toppingList
-        }
+            id: Object.values(item)[0],
+            type: Object.keys(item)[0].slice(0,-3),
+            name: item.description,
+            price: Object.values(item)[4],
+            toppings: toppingList
+        };
     }
     else {
         var tempObject = {
-            "id": Object.values(item)[0],
-            "type": Object.keys(item)[0].slice(0,-3),
-            "name": item.description,
-            "cost": Object.values(item)[4]
-        }
+            id: Object.values(item)[0],
+            type: Object.keys(item)[0].slice(0,-3),
+            name: item.description,
+            price: Object.values(item)[4]
+        };
     }
     shoppingCart.push(tempObject);
     updateCart();
@@ -363,7 +371,7 @@ function updateCart() {
 
     cartContainer.innerHTML = '';
 
-    for (var i = 0; i < shoppingCart.length; i ++) {
+    for (i = 0; i < shoppingCart.length; i ++) {
         // Entry Wrapper
         entryContainer = document.createElement('li');
         entryContainer.dataset.name = removeSpaces((shoppingCart[i].name + '-' + i));
@@ -386,32 +394,32 @@ function updateCart() {
         itemName.className = 'cart-item-name';
         itemName.textContent = shoppingCart[i].name;
 
+        // Item Price
+        itemPrice = document.createElement('span');
+        itemPrice.className = 'cart-item-price';
+        itemPrice.textContent = shoppingCart[i].price;
+
         // Append elements to entry container
         entryContainer.appendChild(removeButton);
         //entryContainer.appendChild(editButton); // TODO: Implement edit button
         entryContainer.appendChild(itemName);
+        entryContainer.appendChild(itemPrice);
 
         // Item Toppings - still needs work done.
-        if (false/* shoppingCart[i].type == 'Entree' */) {
-            for (i = 0; i < toppingList.length; i++) {
+        if (shoppingCart[i].type == 'entree') {
+            for (j = 0; j < shoppingCart[i].toppings.length; j++) {
                 itemToppings = document.createElement('span');
                 itemToppings.className = 'cart-item-name';
                 itemToppings.id = 'cart-item-topping';
-                itemToppings.innerHTML = '<br>' + toppingList[i];
+                itemToppings.innerHTML = '<br>' + shoppingCart[i].toppings[j];
                 entryContainer.appendChild(itemToppings);
             }
         }
 
-        // Item Price
-        itemPrice = document.createElement('span');
-        itemPrice.className = 'cart-item-price';
-        //itemPrice.textContent = shoppingCart[i].price;
-        entryContainer.appendChild(itemPrice);
-
         // Append entry container to shopping cart
         cartContainer.appendChild(entryContainer);
     }
-
+    
     updateTotals();
 }
 
@@ -436,7 +444,7 @@ function calculateTotals() {
     var total = 0.0;
 
     for (var i = 0; i < shoppingCart.length; i++) {
-        subtotal += parseFloat((shoppingCart[i].cost));
+        subtotal += parseFloat((shoppingCart[i].price));
         tax = subtotal * 0.07;
         total = subtotal + tax;
     }
@@ -482,6 +490,21 @@ function capitalize(str) {
 }
 function removeSpaces(str) {
     return str.replace(/\s+/g, '-');
+}
+function runDebug() {
+    var debugButton = document.createElement('button');
+        debugButton.className = 'debug';
+        debugButton.textContent = 'Reload';
+        debugButton.addEventListener('click', function() {
+            location.reload();
+        });
+    document.body.appendChild(debugButton);
+
+    document.addEventListener('keydown', function(event) {
+        if (event.code == 'F5') {
+            location.reload();
+        }
+    });
 }
 
 init();
