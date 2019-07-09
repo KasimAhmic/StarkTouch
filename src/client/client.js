@@ -1,6 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const { ipcMain } = require('electron');
-const { readFileSync } = require('fs')
+const { readFileSync } = require('fs');
 var request = require('request');
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -226,14 +226,28 @@ ipcMain.on('checkForUpdates', (event) => {
 ipcMain.on('trackOrders', (event) => {
     var options = {
         method: 'GET',
-        url: configFile.server.serverURL + '/getIncotrackOrdersmpleteOrder'
+        url: configFile.server.serverURL + '/trackOrders'
     };
 
     request(options, function (err, response, body) {
         if (err) throw err;
         event.reply('trackOrdersResponse', body);
     });
-})
+});
+
+ipcMain.on('pickUpOrder', (event, orderNumber) => {
+    var options = {
+        method: 'POST',
+        url: configFile.server.serverURL + '/pickUpOrder',
+        form: {
+            orderNumber: orderNumber
+        }
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+    });
+});
 
 // TO BE REMOVED - Legacy event handler
 ipcMain.on('config-order', (event) => {

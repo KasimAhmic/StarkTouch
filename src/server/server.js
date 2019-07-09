@@ -2,7 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const con = require('./connection.js');
-const config = require('./config.json');
+const { readFileSync } = require('fs');
+const config = JSON.parse(readFileSync('./config.json'));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -94,6 +95,55 @@ app.post('/completeOrder', function(req, res) {
     });
 
     res.end(req.body.orderId);
+});
+
+app.get('/trackOrders', function(req, res) {
+    var incompleteOrdersSql = `SELECT order_id FROM order_stats WHERE order_out IS NULL;`;
+
+    con.query(incompleteOrdersSql, function(err, incompleteOrdersResult) {
+        if (err) throw err;
+        var incompleteItemsSql = ``;
+
+        for (i = 0; i < incompleteOrdersResult.length; i++) {
+            incompleteItemsSql += `SELECT order_stats_id, entree_end FROM ordered_entree WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+            SELECT order_stats_id, side_end FROM ordered_side WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+            SELECT order_stats_id, dessert_end FROM ordered_dessert WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+            SELECT order_stats_id, drink_end FROM ordered_drink WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};`;
+        }
+    
+        con.query(incompleteItemsSql, function(err, incompleteItemsResult) {
+            if (err) throw err;
+
+            var ordersArray = [];
+
+            for (i = 0; i < incompleteItemsResult.length; i++) {
+                if (incompleteItemsResult[i].length != 0) {
+                    var type = Object.keys(incompleteItemsResult[i][0])[1].slice(0,-4);
+                    var orderNumber = Object.values(incompleteItemsResult[i][0])[0];
+                    var status = Object.values(incompleteItemsResult[i][0])[1];
+                    
+                    if (ordersArray.filter(order => (order.orderNumber === orderNumber)).length > 0) {
+                        var index = ordersArray.findIndex(i => i.orderNumber === orderNumber);
+                        ordersArray[index][type] = status;
+                    } else {
+                        ordersArray.push({orderNumber: orderNumber, [type]: status});
+                    }
+                }
+            }
+
+            res.end(JSON.stringify(ordersArray))
+        });
+    });
+});
+
+app.post('/pickUpOrder', function(req, res) {
+    var sql = `UPDATE order_stats SET order_out = '${new Date().toISOString().slice(0, 19).replace('T', ' ')}' WHERE order_id = ${req.body.orderNumber}`;
+
+    con.query(sql, function(err, result) {
+        if (err) throw err;
+    });
+
+    res.end();
 });
 
 app.listen(3000, function(err) {
