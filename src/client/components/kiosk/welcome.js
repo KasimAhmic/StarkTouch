@@ -11,12 +11,6 @@ function createEventListeners() {
     button.addEventListener('click', function() {
         ipcRenderer.sendSync('load-menu');
     });
-
-    //document.querySelectorAll('.list-item-name').forEach((name) => {
-    //    var height = name.offsetHeight;
-    //    name.style.paddingTop = (height / 2) + 'px';
-    //    name.style.paddingBottom = (height / 2) + 'px';
-    //});
 }
 
 init();

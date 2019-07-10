@@ -1,6 +1,6 @@
 {
     "global": {
-        "componentToLaunch": "consolidation"
+        "componentToLaunch": "kiosk"
     },
     "kiosk": {
         "currentTab": "0"
