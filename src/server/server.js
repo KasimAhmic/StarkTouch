@@ -104,35 +104,39 @@ app.get('/trackOrders', function(req, res) {
         if (err) throw err;
         var incompleteItemsSql = ``;
 
-        for (i = 0; i < incompleteOrdersResult.length; i++) {
-            incompleteItemsSql += `SELECT order_stats_id, entree_end FROM ordered_entree WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
-            SELECT order_stats_id, side_end FROM ordered_side WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
-            SELECT order_stats_id, dessert_end FROM ordered_dessert WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
-            SELECT order_stats_id, drink_end FROM ordered_drink WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};`;
-        }
-    
-        con.query(incompleteItemsSql, function(err, incompleteItemsResult) {
-            if (err) throw err;
+        if (incompleteOrdersResult.length > 0) {
+            for (i = 0; i < incompleteOrdersResult.length; i++) {
+                incompleteItemsSql += `SELECT order_stats_id, entree_end FROM ordered_entree WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+                SELECT order_stats_id, side_end FROM ordered_side WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+                SELECT order_stats_id, dessert_end FROM ordered_dessert WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+                SELECT order_stats_id, drink_end FROM ordered_drink WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};`;
+            }
+        
+            con.query(incompleteItemsSql, function(err, incompleteItemsResult) {
+                if (err) throw err;
 
-            var ordersArray = [];
+                var ordersArray = [];
 
-            for (i = 0; i < incompleteItemsResult.length; i++) {
-                if (incompleteItemsResult[i].length != 0) {
-                    var type = Object.keys(incompleteItemsResult[i][0])[1].slice(0,-4);
-                    var orderNumber = Object.values(incompleteItemsResult[i][0])[0];
-                    var status = Object.values(incompleteItemsResult[i][0])[1];
-                    
-                    if (ordersArray.filter(order => (order.orderNumber === orderNumber)).length > 0) {
-                        var index = ordersArray.findIndex(i => i.orderNumber === orderNumber);
-                        ordersArray[index][type] = status;
-                    } else {
-                        ordersArray.push({orderNumber: orderNumber, [type]: status});
+                for (i = 0; i < incompleteItemsResult.length; i++) {
+                    if (incompleteItemsResult[i].length != 0) {
+                        var type = Object.keys(incompleteItemsResult[i][0])[1].slice(0,-4);
+                        var orderNumber = Object.values(incompleteItemsResult[i][0])[0];
+                        var status = Object.values(incompleteItemsResult[i][0])[1];
+
+                        if (ordersArray.filter(order => (order.orderNumber === orderNumber)).length > 0) {
+                            var index = ordersArray.findIndex(i => i.orderNumber === orderNumber);
+                            ordersArray[index][type] = status;
+                        } else {
+                            ordersArray.push({orderNumber: orderNumber, [type]: status});
+                        }
                     }
                 }
-            }
 
-            res.end(JSON.stringify(ordersArray))
-        });
+                res.end(JSON.stringify(ordersArray));
+            });
+        } else {
+            res.end();
+        }
     });
 });
 
@@ -143,7 +147,7 @@ app.post('/pickUpOrder', function(req, res) {
         if (err) throw err;
     });
 
-    res.end();
+    res.end('')
 });
 
 app.listen(3000, function(err) {

@@ -186,7 +186,7 @@ ipcMain.on('getIndex', (event, type) => {
         event.returnValue = 0;
     } else if (type == 'side') {
         event.returnValue = 1;
-    } else if (type == 'dessert') {
+    } else if (type == 'drink') {
         event.returnValue = 2;
     } else {
         event.returnValue = 3;
