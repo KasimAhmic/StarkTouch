@@ -11,7 +11,6 @@ var toppingList = [];
 function init() {
     config = ipcRenderer.sendSync('request-config');
     menu = JSON.parse(ipcRenderer.sendSync('getMenu'));
-    console.log(menu)
 
     createCategoryButtons();
     createItemButtons(config.kiosk.currentTab);
@@ -242,18 +241,6 @@ function createPaymentScreen() {
     var submitButton = document.getElementById('review');
         submitButton.innerHTML = 'Submit Order';
         submitButton.removeEventListener('click', reviewOrder);
-        submitButton.addEventListener('click', function() {
-            submitOrder(shoppingCart);
-        });
-
-    var load = document.createElement('div');
-        load.className = 'circle-loader';
-        load.id = 'loader-icon';
-    var checkmark = document.createElement('div');
-        checkmark.className = 'checkmark draw';
-        checkmark.id = 'checkmark-icon';
-
-    load.style.opacity = 0.0;
 
     var nameDiv = document.createElement('div');
     var paymentDiv = document.createElement('div');
@@ -275,26 +262,97 @@ function createPaymentScreen() {
     var image = document.createElement('img');
         image.src = 'images/payment.png';
         image.id = 'payment-options';
-        image.addEventListener('click', function() {
-            load.style.opacity = 1.0
-            setTimeout(function() {
-                var loader = document.getElementById('loader-icon');
-                    loader.classList.toggle('load-complete');
-                var check = document.getElementById('checkmark-icon');
-                    check.style.display = 'inline-block'
-            }, 5000);
-        });
 
     form1.appendChild(nameInput);
     form2.appendChild(image);
     nameDiv.appendChild(comment1);
     nameDiv.appendChild(form1);
-    paymentDiv.appendChild(comment2);
-    paymentDiv.appendChild(form2);
-    load.appendChild(checkmark);
+
+    // Replaced with code below
+    /*paymentDiv.appendChild(comment2);
+    paymentDiv.appendChild(form2);*/
+    paymentDiv.innerHTML = `
+        <div id="dropin-wrapper">
+            <div id="checkout-message"></div>
+            <div id="dropin-container"></div>
+        </div>
+    `;
+    var button = document.querySelector('#submit-button');
+    
+    //Adds braintree dropin to payment screen
+    braintree.dropin.create({
+        authorization: 'sandbox_kt2ct7tw_4vbx9dbhxsyjqq62', // tokenization_key will need to be modified for future merchants
+        container: '#dropin-container',
+        card: {
+            overrides: {
+                fields: {
+                    number: {
+                        placeholder: "**** **** **** ****" // Fix for symbols bug
+                    }
+                }
+            }
+        }
+    }, function (createErr, instance) {
+        // Only allow ordering when braintree is setup
+        submitButton.addEventListener('click', function() {
+            submitOrder(shoppingCart, instance);
+        });
+    });
+
     itemDiv.appendChild(nameDiv);
-    itemDiv.appendChild(load);
     itemDiv.appendChild(paymentDiv);
+    
+    // Josh's payment function
+    //
+    //var load = document.createElement('div');
+    //    load.className = 'circle-loader';
+    //    load.id = 'loader-icon';
+    //var checkmark = document.createElement('div');
+    //    checkmark.className = 'checkmark draw';
+    //    checkmark.id = 'checkmark-icon';
+//
+    //load.style.opacity = 0.0;
+//
+    //var nameDiv = document.createElement('div');
+    //var paymentDiv = document.createElement('div');
+//
+    //var form1 = document.createElement('form');
+    //var form2 = document.createElement('form');
+//
+    //var comment1 = document.createElement('span');
+    //    comment1.innerHTML = 'Please enter a name for this order:';
+    //    comment1.className = 'confirmation-comment';
+    //var comment2 = document.createElement('span');
+    //    comment2.innerHTML = 'Please enter your card:';
+    //    comment2.id = 'payment-comment';
+    //var nameInput = document.createElement('input');
+    //    nameInput.id = 'name-form';
+    //    nameInput.type = 'text';
+    //    nameInput.name = 'name';
+    //    nameInput.size = 50;
+    //var image = document.createElement('img');
+    //    image.src = 'images/payment.png';
+    //    image.id = 'payment-options';
+    //    image.addEventListener('click', function() {
+    //        load.style.opacity = 1.0
+    //        setTimeout(function() {
+    //            var loader = document.getElementById('loader-icon');
+    //                loader.classList.toggle('load-complete');
+    //            var check = document.getElementById('checkmark-icon');
+    //                check.style.display = 'inline-block'
+    //        }, 5000);
+    //    });
+//
+    //form1.appendChild(nameInput);
+    //form2.appendChild(image);
+    //nameDiv.appendChild(comment1);
+    //nameDiv.appendChild(form1);
+    //paymentDiv.appendChild(comment2);
+    //paymentDiv.appendChild(form2);
+    //load.appendChild(checkmark);
+    //itemDiv.appendChild(nameDiv);
+    //itemDiv.appendChild(load);
+    //itemDiv.appendChild(paymentDiv);
 
     // TO-DO: Figure out way to invoke payment process.
 }
@@ -319,12 +377,6 @@ function createFinalScreen(name, orderNum) {
     thankDiv.appendChild(comment1);
     thankDiv.appendChild(comment2);
     itemDiv.appendChild(thankDiv);
-}
-
-// Processes Payment
-function processPayment() {
-    // TO-DO: Create functionality to process payment
-    submitOrder(shoppingCart);
 }
 
 function addToCart(itemIndex) {
@@ -446,19 +498,40 @@ function reviewOrder() {
     createConfirmationScreen();
 }
 
-function submitOrder(cart) {
+function submitOrder(cart, braintreeInstance) {
     [subtotal, tax, total] = calculateTotals();
     var name = document.getElementById('name-form').value;
-    ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total);
+
+    // Requests credit card payment method via braintree dropin
+    braintreeInstance.requestPaymentMethod(function (requestPaymentMethodErr, payload) {
+        
+        braintreeInstance.teardown(function (teardownErr) {
+            if (teardownErr) {
+                console.error('Could not tear down Drop-in UI!');
+            } else {
+                console.info('Drop-in UI has been torn down!');
+            }
+        });
+        // Only send request if the payment was successful
+        if (requestPaymentMethodErr) {
+            console.error(requestPaymentMethodErr);
+            return;
+        }
+        ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total, payload.nonce);
+    });
 }
 
-ipcRenderer.on('submitOrderResponse', (event, res) => {
+ipcRenderer.on('submitOrderResponse', (event, res, success) => {
     var res = JSON.parse(res);
-    createFinalScreen(res.name, res.orderNumber);
 
-    setTimeout(function() {
-        ipcRenderer.send('load-kiosk');
-    }, 5000);
+    if (success) {
+        createFinalScreen(res.name, res.orderNumber);
+        setTimeout(function() {
+            ipcRenderer.send('load-kiosk');
+        }, 5000);
+    } else {
+        alert('Payment declined.');
+    }
 });
 
 // Leave this function for educational purposes

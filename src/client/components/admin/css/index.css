@@ -1,0 +1,137 @@
+body {
+  width: 100%;
+  background-color: #f2f2f2;
+}
+
+div#menu-bar {
+  background-color: #2E3192;
+  height: 100px;
+}
+
+div#menu-bar img {
+  display: flex;
+  float: right;
+  width: 200px;
+  height: 100px;
+}
+
+div#menu-screen {
+  margin-left: 15%;
+  margin-right: 15%;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+div.menu-icon {
+  animation: fadeIn 1.0s ease forwards;
+  display: flex;
+  /* float: left; */
+  height: 75px;
+  /*width: 100px;*/
+  padding: 5%;
+  margin: 25px;
+  background-color: #B3B3B3;
+  border: 3px solid #999999;
+  font-size: 1.2em;
+  font-weight: bold;
+
+  flex: 1 0 20%;
+}
+
+div.menu-icon span {
+  font-family: Helvetica;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+}
+
+@keyframes fadeIn{
+  0% {
+    opacity:0;
+    transform: translate(0px,-25px);
+  }
+  100% {
+    transform: translate(0px,0px);
+    opacity:1;
+  }
+}
+
+#sqlBox {
+  text-align: center;
+  padding: 3rem;
+}
+
+.aggregator {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+#aggregateBy {
+  height: 24px;
+}
+
+#aggregate {
+  height: 24px;
+}
+
+.aggregateBy-dropdown {
+  display: inline-block;
+}
+
+.create-area {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  max-width: 400px;
+}
+#results {		
+  display: flex;		
+  flex-direction: row;		
+  flex-wrap: wrap;		
+  align-items: center;		
+  justify-content: center;		
+}		
+.itemButton {		
+  display: flex;		
+  align-items: flex-end;		
+  width: 250px;		
+  height: 250px;		
+  border-radius: 4px;		
+  background-size: cover;		
+  margin: 20px;		
+  background-position: center;		
+  flex-direction: column;		
+  overflow: hidden;		
+}		
+.itemData {		
+  display: flex;		
+  flex-direction: row;		
+  background: white;		
+  padding: 20px;		
+  flex: 1;		
+  width: 100%;		
+}		
+.itemDelete {		
+  text-align: right;		
+  flex: 4;		
+  cursor: pointer;		
+  vertical-align: top;		
+  color: red;		
+  padding: 4px;		
+  font-size: 22px;		
+  font-family: Arial, Helvetica, sans-serif;		
+}		
+.itemName {		
+  flex: 4;		
+  font-size: 20px;		
+  font-family: Arial, Helvetica, sans-serif;		
+}		
+.itemPrice {		
+  flex: 1;		
+  color: lime;		
+}

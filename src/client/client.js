@@ -2,11 +2,20 @@ const { app, BrowserWindow } = require('electron');
 const { ipcMain } = require('electron');
 const { readFileSync } = require('fs');
 var request = require('request');
+var braintree = require('braintree');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 let configFile = JSON.parse(readFileSync('./config.json'));
+let braintreeConfig = JSON.parse(readFileSync('./braintree.json'));
+
+var gateway = new braintree.BraintreeGateway({
+    environment: braintree.Environment.Sandbox,
+    merchantId: braintreeConfig.merchantId,
+    publicKey: braintreeConfig.publicKey,
+    privateKey: braintreeConfig.privateKey
+});
 
 function createWindow () {
     // Create the browser window.
@@ -21,8 +30,6 @@ function createWindow () {
         show: false,
         icon: 'icon.ico'
     });
-
-    //win.loadFile('components/' + configFile.global.componentToLaunch + '/index.html');
 
     // Load index.html file of configured component
     if (configFile.global.componentToLaunch == 'kiosk') {
@@ -139,8 +146,7 @@ ipcMain.on('load-manager', (event) => {
     event.returnValue = null;
 });
 
-// Submits order to the database
-ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
+ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total, nonce) => {
     var options = {
         method: 'POST',
         url: configFile.server.serverURL + '/submitOrder',
@@ -154,9 +160,31 @@ ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
         }
     };
 
-    request(options, function (err, response, body) {
-        if (err) throw err;
-        event.reply('submitOrderResponse', body);
+    // Create a braintree sale for the total order amount
+    gateway.transaction.sale({
+        amount: total,
+        paymentMethodNonce: nonce,
+        options: {
+            submitForSettlement: true
+        }        
+    }, function (err, result) {
+        if (err) {
+            console.error(err);
+            return;
+        }
+        if (result.success) {
+            console.log('Transaction ID: ' + result.transaction.id);
+            // Send the transaction ID to the server
+            options.form.transactionID = result.transaction.id;
+
+            request(options, function (err, response, body) {
+                if (err) throw err;
+                event.reply('submitOrderResponse', body, true);
+            });
+        } else {
+            console.error(result.message);
+            event.reply('submitOrderResponse', body, false);
+        }
     });
 });
 
@@ -253,3 +281,88 @@ ipcMain.on('pickUpOrder', (event, orderNumber) => {
 ipcMain.on('config-order', (event) => {
     event.returnValue = [configFile, orderProgressFile, orderReadyFile];
 });
+
+ipcMain.on('orderMaxs', (event) => {
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/orderMaxs'
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.returnValue = JSON.parse(body);
+    });
+});
+
+// Setup search handler and accept a "queryString" argument from the client
+ipcMain.on('search', (event, queryString) => {
+    console.log("DEBUG: Sending search request to server: " + queryString);
+
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/search',
+        form: {
+            query: queryString
+        }
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.returnValue = JSON.parse(body);
+    });
+});
+
+//Take aggregate message from client, relay to server
+ipcMain.on('aggregate', (event, type, start, end, table, aggSearch) => {
+    console.log("DEBUG: Sending aggregation request to server: " + type + "|" + start + "|" + end);
+    
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/aggregate',
+        form: {
+            type: type,
+            start: start,
+            end: end,
+            table: table,
+            search: aggSearch
+        }
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.returnValue = JSON.parse(body);
+    });
+});
+
+ipcMain.on("create", (event, data) => {
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/create',
+        form: {
+            itemData: JSON.stringify(data)
+        }
+    };
+
+    request(options, function (err, response, body) {
+        if (err) throw err;
+
+        event.returnValue=JSON.parse(body);
+    });
+});
+
+ipcMain.on("deleteItem", (event, type, id) => {
+    var options = {
+        method: 'GET',
+        url: 'http://localhost:3000/deleteItem',
+        form: {
+            table: type,
+            id: id
+        }
+    };
+
+    request(options, function (err, response, body) {		
+        if (err) throw err;
+        console.log(body);
+        event.returnValue=JSON.parse(body);
+    });
+})
