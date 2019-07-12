@@ -11,7 +11,6 @@ var toppingList = [];
 function init() {
     config = ipcRenderer.sendSync('request-config');
     menu = JSON.parse(ipcRenderer.sendSync('getMenu'));
-    console.log(menu);
 
     createMenuItems();
     createPaymentButtons();
