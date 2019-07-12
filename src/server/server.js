@@ -1,12 +1,27 @@
 const express = require('express');
+const https = require('https');
+const http = require('http');
 const bodyParser = require('body-parser');
 const app = express();
-const con = require('./connection.js');
+const con = require('./secure/connection.js');
 const { readFileSync } = require('fs');
 const config = JSON.parse(readFileSync('./config.json'));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+
+http.createServer(app).listen(80, function() {
+    console.log('HTTP server started on port 3000.');
+});
+https.createServer({key: readFileSync('./secure/server.key'), cert: readFileSync('./secure/server.cert')}, app).listen(3000, function() {
+    console.log('HTTPS server started on port 3000.')
+});
+
+app.get('/', function(req, res) {
+    res.send('Hello World!');
+});
 
 app.post('/submitOrder', function(req, res) {
     var order = {
@@ -372,10 +387,10 @@ app.get('/viewRows', function(req, res) {
     });
 });
 
-app.listen(3000, function(err) {
-    if (err) {
-        throw err;
-    }
-
-    console.log('Server started on port 3000.');
-});
+//app.listen(3000, function(err) {
+//    if (err) {
+//        throw err;
+//    }
+//
+//    console.log('Server started on port 3000.');
+//});
