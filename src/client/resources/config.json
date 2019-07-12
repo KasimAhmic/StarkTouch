@@ -1,0 +1,15 @@
+{
+    "global": {
+        "componentToLaunch": "kiosk"
+    },
+    "kiosk": {
+        "currentTab": "0"
+    },
+    "terminal": {
+        "maxColumns": 6,
+        "type": "drink"
+    },
+    "server": {
+        "serverURL": "https://127.0.0.1:3000"
+    }
+}
