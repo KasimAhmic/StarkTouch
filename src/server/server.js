@@ -2,7 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const con = require('./connection.js');
-const config = require('./config.json');
+const { readFileSync } = require('fs');
+const config = JSON.parse(readFileSync('./config.json'));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
@@ -37,7 +38,7 @@ app.post('/submitOrder', function(req, res) {
         console.log("Order submitted.");
     }).on('end', function() {
         generateOrderNumber(function(number) {
-            res.end(`Thank you ${order.name}! Your order number is ${number} and will be ready shortly!`);
+            res.end(JSON.stringify({orderNumber: number, name: order.name}));
         });
     });
 });
@@ -96,12 +97,57 @@ app.post('/completeOrder', function(req, res) {
     res.end(req.body.orderId);
 });
 
-app.listen(3000, function(err) {
-    if (err) {
-        throw err;
-    }
+app.get('/trackOrders', function(req, res) {
+    var incompleteOrdersSql = `SELECT order_id FROM order_stats WHERE order_out IS NULL;`;
 
-    console.log('Server started on port 3000.');
+    con.query(incompleteOrdersSql, function(err, incompleteOrdersResult) {
+        if (err) throw err;
+        var incompleteItemsSql = ``;
+
+        if (incompleteOrdersResult.length > 0) {
+            for (i = 0; i < incompleteOrdersResult.length; i++) {
+                incompleteItemsSql += `SELECT order_stats_id, entree_end FROM ordered_entree WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+                SELECT order_stats_id, side_end FROM ordered_side WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+                SELECT order_stats_id, dessert_end FROM ordered_dessert WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};
+                SELECT order_stats_id, drink_end FROM ordered_drink WHERE order_stats_id = ${incompleteOrdersResult[i].order_id};`;
+            }
+        
+            con.query(incompleteItemsSql, function(err, incompleteItemsResult) {
+                if (err) throw err;
+
+                var ordersArray = [];
+
+                for (i = 0; i < incompleteItemsResult.length; i++) {
+                    if (incompleteItemsResult[i].length != 0) {
+                        var type = Object.keys(incompleteItemsResult[i][0])[1].slice(0,-4);
+                        var orderNumber = Object.values(incompleteItemsResult[i][0])[0];
+                        var status = Object.values(incompleteItemsResult[i][0])[1];
+
+                        if (ordersArray.filter(order => (order.orderNumber === orderNumber)).length > 0) {
+                            var index = ordersArray.findIndex(i => i.orderNumber === orderNumber);
+                            ordersArray[index][type] = status;
+                        } else {
+                            ordersArray.push({orderNumber: orderNumber, [type]: status});
+                        }
+                    }
+                }
+
+                res.end(JSON.stringify(ordersArray));
+            });
+        } else {
+            res.end();
+        }
+    });
+});
+
+app.post('/pickUpOrder', function(req, res) {
+    var sql = `UPDATE order_stats SET order_out = '${new Date().toISOString().slice(0, 19).replace('T', ' ')}' WHERE order_id = ${req.body.orderNumber}`;
+
+    con.query(sql, function(err, result) {
+        if (err) throw err;
+    });
+
+    res.end('')
 });
 
 function generateOrderNumber(callback) {
@@ -114,3 +160,222 @@ function generateOrderNumber(callback) {
         });
     });
 }
+
+//Get request is made
+app.get('/orderMaxs', function(req, res) {
+    let orderMaxs = {
+
+    };
+    //Starts queries connection to stark_db for total desserts
+    con.query("SELECT MAX(ordered_dessert_id) FROM ordered_dessert", function (err, result, fields) {
+        
+        var resultArray1 = Object.values(JSON.parse(JSON.stringify(result)));
+        orderMaxs['desserts'] = resultArray1[0]['MAX(ordered_dessert_id)'];
+
+        //Starts queries connection to stark_db for total sides
+        con.query("SELECT MAX(ordered_side_id) FROM ordered_side", function (err, result, fields) {
+        
+            var resultArray2 = Object.values(JSON.parse(JSON.stringify(result)));
+            orderMaxs['sides'] = resultArray2[0]['MAX(ordered_side_id)'];
+            
+            //Starts queries connection to stark_db for total entrees
+            con.query("SELECT MAX(ordered_entree_id) FROM ordered_entree", function (err, result, fields) {
+        
+                var resultArray3 = Object.values(JSON.parse(JSON.stringify(result)));
+                orderMaxs['entrees'] = resultArray3[0]['MAX(ordered_entree_id)'];
+
+                //Starts queries connection to stark_db for total drinks
+                con.query("SELECT MAX(ordered_drink_id) FROM ordered_drink", function (err, result, fields) {
+        
+                    var resultArray4 = Object.values(JSON.parse(JSON.stringify(result)));
+                    orderMaxs['drinks'] = resultArray4[0]['MAX(ordered_drink_id)'];
+
+                    //Ends response with orderMaxs object containing results for nested arrays
+                    res.end(JSON.stringify(orderMaxs))
+                    
+                 });
+                
+             });
+         });
+     });
+});
+
+// Register our search endpoint
+app.get('/search', function(req, res) {
+    console.log("DEBUG: Searching for " + req.body.query);
+    // Replace SOME_TABLE with your own
+    var sql = `
+        (SELECT *, 'side' as type
+        FROM side
+        WHERE description LIKE ?)
+        UNION
+        (SELECT *, 'entree' as type
+        FROM entree
+        WHERE description LIKE ?)
+        UNION
+        (SELECT *, 'drink' as type
+        FROM drink
+        WHERE description LIKE ?)
+        UNION
+        (SELECT *, 'dessert' as type
+        FROM dessert
+        WHERE description LIKE ?);
+    `;
+
+    // Wraps search in % to perform a wildcard search
+    var searchTerm = "%" + req.body.query + "%";
+    con.query(sql, [searchTerm, searchTerm, searchTerm, searchTerm], function(err, result) {
+
+        res.end(JSON.stringify({
+            status: err ? "error" : "success",
+            data: result,
+            error: err
+        }));
+    });
+});
+
+// Register the aggregation endpoint
+app.get('/aggregate', function(req, res) {
+    console.log("DEBUG: Aggregating " + req.body.type);
+    if (req.body.type == "completionTime") {
+        var sql = `
+            SELECT
+                AVG(TIMESTAMPDIFF(SECOND, order_in, order_out)) as average_time
+            FROM
+                stark_db.order_stats
+            WHERE
+                order_date BETWEEN ? AND ?;`;
+        var startTime = (new Date(req.body.start)).toISOString();
+        var endTime = (new Date(req.body.end)).toISOString();
+        con.query(sql, [startTime, endTime], function(err, result) {
+            if (err) throw err;
+
+            // Default to 0 if result is null.
+            res.end(JSON.stringify({average_time: result[0].average_time || 0}));
+        });
+    }else if (req.body.type == "completionOrderTime") {
+        // First search for the item
+        var table = req.body.table;
+        // Filter out illegal table names
+        if (!["dessert", "drink", "entree", "side"].includes(table)) {
+            throw new Error("Invalid table");
+        }
+        var sql = `
+            SELECT
+                *
+            FROM
+                stark_db.${table}
+            WHERE
+                name LIKE ?;`
+        var searchName = "%" + req.body.search + "%";
+        con.query(sql, [searchName], function(err, result) {
+            if (err) throw err;
+            
+            if (result.length > 0) {
+                // Grab the id for this item
+                var itemId = result[0][table + "_id"];
+                var aggSql = `
+                    SELECT
+                        AVG(TIMESTAMPDIFF(SECOND, order_stats.order_in, order_stats.order_out)) as average_time
+                    FROM
+                        stark_db.order_stats
+                    LEFT OUTER JOIN
+                        stark_db.ordered_${table}
+                        ON ordered_${table}.order_stats_id = order_stats.order_id
+                    WHERE
+                        order_stats.order_date BETWEEN ? AND ?
+                        AND ordered_${table}.${table}_ordered = ${itemId};`;
+                var startTime = (new Date(req.body.start)).toISOString();
+                var endTime = (new Date(req.body.end)).toISOString();
+                con.query(aggSql, [startTime, endTime], function(err, result) {
+                    if (err) throw err;
+                    console.log(result);
+
+                    // Default to 0 if result is null.
+                    res.end(JSON.stringify({average_time: result.length > 0 ? result[0].average_time : 0}));
+                });
+
+            }else{
+                res.end(JSON.stringify({average_time: "No item found"}));
+            }
+        });
+    }else{
+        // Throw an error if the type is not handled
+        if (!(req.body.type in typeColumns))
+            throw new Error("Invalid aggregator type");
+    }
+});
+
+// Listen for create requests
+app.get('/create', function(req, res) {
+    var itemData = JSON.parse(req.body.itemData);
+    var table = itemData.table;
+    // Filter out illegal table names
+    if (!["dessert", "drink", "entree", "side"].includes(table)) {
+        throw new Error("Invalid table");
+    }
+    var sql = `
+        INSERT INTO ${table}
+            (name, description, calories, ${table}_cost, qty_in_stock, reorder_level, active)
+        VALUES
+            (?, ?, ?, ?, ?, 1, 1);
+    `;
+    con.query(sql, [
+        itemData.name,
+        itemData.description,
+        itemData.calories,
+        itemData.cost,
+        itemData.stock
+    ], function(err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify({message: "Success", result: result}));
+    });
+});
+
+app.get('/deleteItem', function(req, res) {
+    var table = req.body.table;
+    // Filter out illegal table names
+    if (!["dessert", "drink", "entree", "side"].includes(table)) {
+        throw new Error("Invalid table");
+    }
+    var sql = `
+        DELETE FROM ${table}
+        WHERE ${table}_id = ?;
+    `;
+    con.query(sql, [
+        req.body.id
+    ], function(err, result) {
+        if (err) throw err;
+        res.end(JSON.stringify({message: "success", result: result}));
+    });
+});
+
+app.get('/viewRows', function(req, res) {
+    var sql = `
+        SELECT
+            *
+        FROM
+            stark_db.order_stats
+        LEFT OUTER JOIN
+            stark_db.order_items
+            ON order_items.order_stats_id = order_stats.order_id
+        WHERE
+            order_stats.order_date BETWEEN ? AND ?;`;
+    var startTime = (new Date("07-01-2019")).toISOString();
+    var endTime = (new Date("07-30-2019")).toISOString();
+    console.log(startTime, endTime);
+    con.query(sql, [startTime, endTime], function(err, result) {
+        if (err) throw err;
+
+        // Default to 0 if result is null.
+        res.end(JSON.stringify(result));
+    });
+});
+
+app.listen(3000, function(err) {
+    if (err) {
+        throw err;
+    }
+
+    console.log('Server started on port 3000.');
+});

@@ -1,13 +1,13 @@
 {
     "global": {
-        "componentToLaunch": "consolidation"
+        "componentToLaunch": "kiosk"
     },
     "kiosk": {
         "currentTab": "0"
     },
     "terminal": {
         "maxColumns": 6,
-        "type": "side"
+        "type": "drink"
     },
     "server": {
         "serverURL": "http://127.0.0.1:3000"
