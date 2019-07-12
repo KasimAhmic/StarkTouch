@@ -1,6 +1,6 @@
 {
     "global": {
-        "componentToLaunch": "kiosk"
+        "componentToLaunch": "register"
     },
     "kiosk": {
         "currentTab": "0"
@@ -10,6 +10,6 @@
         "type": "drink"
     },
     "server": {
-        "serverURL": "http://127.0.0.1:3000"
+        "serverURL": "https://127.0.0.1:3000"
     }
 }
