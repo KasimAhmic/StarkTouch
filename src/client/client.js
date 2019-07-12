@@ -4,6 +4,8 @@ const { readFileSync } = require('fs');
 var request = require('request');
 var braintree = require('braintree');
 
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -166,7 +168,7 @@ ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total, nonce) => {
         paymentMethodNonce: nonce,
         options: {
             submitForSettlement: true
-        }        
+        }
     }, function (err, result) {
         if (err) {
             console.error(err);
@@ -285,7 +287,7 @@ ipcMain.on('config-order', (event) => {
 ipcMain.on('orderMaxs', (event) => {
     var options = {
         method: 'GET',
-        url: 'http://localhost:3000/orderMaxs'
+        url: configFile.server.serverURL + '/orderMaxs'
     };
 
     request(options, function (err, response, body) {
@@ -300,7 +302,7 @@ ipcMain.on('search', (event, queryString) => {
 
     var options = {
         method: 'GET',
-        url: 'http://localhost:3000/search',
+        url: configFile.server.serverURL + '/search',
         form: {
             query: queryString
         }
@@ -318,7 +320,7 @@ ipcMain.on('aggregate', (event, type, start, end, table, aggSearch) => {
     
     var options = {
         method: 'GET',
-        url: 'http://localhost:3000/aggregate',
+        url: configFile.server.serverURL + '/aggregate',
         form: {
             type: type,
             start: start,
@@ -337,7 +339,7 @@ ipcMain.on('aggregate', (event, type, start, end, table, aggSearch) => {
 ipcMain.on("create", (event, data) => {
     var options = {
         method: 'GET',
-        url: 'http://localhost:3000/create',
+        url: configFile.server.serverURL + '/create',
         form: {
             itemData: JSON.stringify(data)
         }
@@ -353,7 +355,7 @@ ipcMain.on("create", (event, data) => {
 ipcMain.on("deleteItem", (event, type, id) => {
     var options = {
         method: 'GET',
-        url: 'http://localhost:3000/deleteItem',
+        url: configFile.server.serverURL + '/deleteItem',
         form: {
             table: type,
             id: id
