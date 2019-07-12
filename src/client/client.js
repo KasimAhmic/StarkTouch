@@ -9,8 +9,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-let configFile = JSON.parse(readFileSync('./resources/config.json'));
-let braintreeConfig = JSON.parse(readFileSync('./resources/braintree.json'));
+let configFile = JSON.parse(readFileSync('./config.json'));
+let braintreeConfig = JSON.parse(readFileSync('./braintree.json'));
 
 var gateway = new braintree.BraintreeGateway({
     environment: braintree.Environment.Sandbox,
@@ -100,11 +100,6 @@ ipcMain.on('getMenu', (event) => {
 });
 
 // Create event handlers for new page requests
-ipcMain.on('load-settings', (event) => {
-    // NOT DONE YET
-    win.loadFile('components/kiosk/settings.html');
-    event.returnValue = null;
-});
 ipcMain.on('load-kiosk', (event) => {
     win.loadFile('components/kiosk/welcome.html');
     event.returnValue = null;
@@ -114,7 +109,6 @@ ipcMain.on('load-menu', (event) => {
     event.returnValue = null;
 });
 ipcMain.on('load-register', (event) => {
-    // NOT DONE YET
     win.loadFile('components/register/index.html');
     event.returnValue = null;
 });
@@ -138,13 +132,20 @@ ipcMain.on('load-emp-consolidate', (event) => {
     win.loadFile('components/employee-consolidation/index.html');
     event.returnValue = null;
 });
+ipcMain.on('load-emp-register', (event) => {
+    win.loadFile('components/register/index.html');
+    event.returnValue = null;
+});
 ipcMain.on('load-cust-consolidate', (event) => {
     win.loadFile('components/consolidation/index.html');
     event.returnValue = null;
 });
 ipcMain.on('load-manager', (event) => {
-    // NOT DONE YET
-    win.loadFile('components/manager/index.html');
+    win.loadFile('components/admin/index.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-main-menu', (event) => {
+    win.loadFile('components/main menu/index.html');
     event.returnValue = null;
 });
 
@@ -161,33 +162,45 @@ ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total, nonce) => {
             dineIn: true
         }
     };
+    if (nonce === undefined) {
+        // TO-DO: Find a way to send transaction ID to server for cash orders.
 
-    // Create a braintree sale for the total order amount
-    gateway.transaction.sale({
-        amount: total,
-        paymentMethodNonce: nonce,
-        options: {
-            submitForSettlement: true
-        }
-    }, function (err, result) {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        if (result.success) {
-            console.log('Transaction ID: ' + result.transaction.id);
-            // Send the transaction ID to the server
-            options.form.transactionID = result.transaction.id;
+        //console.log('Transaction ID: ' + result.transaction.id);
+        // Send the transaction ID to the server
+        //options.form.transactionID = result.transaction.id;
 
-            request(options, function (err, response, body) {
-                if (err) throw err;
-                event.reply('submitOrderResponse', body, true);
-            });
-        } else {
-            console.error(result.message);
-            event.reply('submitOrderResponse', body, false);
-        }
-    });
+        request(options, function (err, response, body) {
+            if (err) throw err;
+            event.reply('submitOrderResponse', body, true);
+        });
+    } else {
+        // Create a braintree sale for the total order amount
+        gateway.transaction.sale({
+            amount: total,
+            paymentMethodNonce: nonce,
+            options: {
+                submitForSettlement: true
+            }
+        }, function (err, result) {
+            if (err) {
+                console.error(err);
+                return;
+            }
+            if (result.success) {
+                console.log('Transaction ID: ' + result.transaction.id);
+                // Send the transaction ID to the server
+                options.form.transactionID = result.transaction.id;
+
+                request(options, function (err, response, body) {
+                    if (err) throw err;
+                    event.reply('submitOrderResponse', body, true);
+                });
+            } else {
+                console.error(result.message);
+                event.reply('submitOrderResponse', body, false);
+            }
+        });
+    }
 });
 
 // Searches database for incompelete orders and returns them
@@ -317,7 +330,7 @@ ipcMain.on('search', (event, queryString) => {
 //Take aggregate message from client, relay to server
 ipcMain.on('aggregate', (event, type, start, end, table, aggSearch) => {
     console.log("DEBUG: Sending aggregation request to server: " + type + "|" + start + "|" + end);
-    
+
     var options = {
         method: 'GET',
         url: configFile.server.serverURL + '/aggregate',
@@ -362,7 +375,7 @@ ipcMain.on("deleteItem", (event, type, id) => {
         }
     };
 
-    request(options, function (err, response, body) {		
+    request(options, function (err, response, body) {
         if (err) throw err;
         console.log(body);
         event.returnValue=JSON.parse(body);
