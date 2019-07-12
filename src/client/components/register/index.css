@@ -1,0 +1,324 @@
+#top-bar {
+  width: 100%;
+  height: 110px;
+  margin: auto;
+  background-color: #2E3192;
+  display: inline-block;
+  border: 3px solid black;
+}
+
+.top-bar-button {
+  display: flex;
+  float: left;
+  width: 150px;
+  height: 75px;
+  padding: 10px 10px;
+  margin: 10px 7px;
+  border: 3px solid black;
+  background-color: #333333;
+  vertical-align: middle;
+}
+
+.top-bar-button span {
+  font-size: 24px;
+  font-family: Helvetica;
+  color: white;
+  line-height: normal;
+  text-align: center;
+  margin: auto;
+}
+
+#top-bar img {
+  width: auto;
+  height: 100px;
+  float: right;
+}
+
+#shopping-cart {
+  width: 25%;
+  height: 580px;
+  float: left;
+  background-color: #E6E6E6;
+  border: 3px solid black;
+}
+
+#cart-title {
+  display: inline-block;
+  width: 100%;
+  height: 75px;
+  padding: 20px 0;
+  border-bottom: 1px solid #1c769c;
+  font-size: 32px;
+  font-family: Helvetica;
+  text-align: center;
+  line-height: normal;
+}
+
+#shopping-cart .remove-item-button {
+    width: 24px;
+    height: 24px;
+    margin-right: 5px;
+    border: none;
+    background-image: url('remove.svg');
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-size: 24px 24px;
+    opacity: 0.5;
+}
+
+.cart-wrapper {
+  height: calc(100% - 260px);
+  padding-top: 5px;
+  box-sizing: border-box;
+  overflow-y: scroll;
+}
+
+#shopping-cart ul {
+    list-style-type: none;
+    padding: 0 10px;
+    margin-top: 0;
+}
+#shopping-cart li {
+    padding: 5px 0;
+}
+
+.cart-item-name {
+    vertical-align: top;
+    font: 400 20px Helvetica;
+}
+
+.cart-item-price {
+    float: right;
+    vertical-align: top;
+    font: 400 20px Helvetica;
+    padding-right: 10px;
+}
+
+#cart-item-topping {
+  font-size: 18px;
+  position: relative;
+  left: 40px;
+  line-height: normal;
+}
+
+.totals {
+    position: relative;
+    top: 85px;
+    width: 100%;
+    font: 400 20px Helvetica;
+    border-top: 1px solid #1c769c;
+}
+
+.totals ul {
+    margin: 0 0 7px 0;
+}
+
+#subtotal,
+#tax,
+#total {
+    float: right;
+}
+
+#menu {
+  width: 75%;
+  height: 580px;
+  float: right;
+  background-color: #B3B3B3;
+}
+
+.menu-button {
+  display: flex;
+  float: left;
+  width: 175px;
+  height: 75px;
+  padding: 10px 10px;
+  margin: 10px 7px;
+  border: 3px solid black;
+  background-color: #333333;
+  vertical-align: middle;
+}
+
+.menu-button span {
+  font-size: 20px;
+  font-family: Helvetica;
+  color: black;
+  line-height: normal;
+  text-align: center;
+  margin: auto;
+}
+
+#menu-wrapper {
+  width: 90%;
+  margin: auto;
+}
+
+#Entrees {
+  display: inline-block;
+  float: left;
+  width: 50%;
+}
+#Sides {
+  display: inline-block;
+  float: right;
+  width: 50%;
+}
+
+#Drinks {
+  display: inline-block;
+  float: right;
+  width: 50%;
+}
+
+#Desserts {
+  display: inline-block;
+  float: right;
+  width: 50%;
+}
+
+#toppings {
+  display: inline-block;
+  margin: auto;
+  width: 100%;
+}
+
+#Entrees div {
+  background-color: #A67C52;
+}
+
+#Sides div {
+  background-color: #D9E021;
+}
+
+#Drinks div {
+  background-color: #29ABE2;
+}
+
+#Desserts div {
+  background-color: #FFF8B6;
+}
+
+
+#confirm-button {
+  display: flex;
+  float: left;
+  width: 150px;
+  height: 75px;
+  padding: 10px 10px;
+  margin: 10px 7px;
+  border: 3px solid black;
+  background-color: #006837;
+  vertical-align: middle;
+}
+
+#confirm-button span {
+  font-size: 24px;
+  font-family: Helvetica;
+  color: white;
+  line-height: normal;
+  text-align: center;
+  margin: auto;
+}
+
+.topping-button {
+  display: flex;
+  float: left;
+  width: 115px;
+  height: 50px;
+  padding: 10px 10px;
+  margin: 10px 7px;
+  border: 3px solid black;
+  background-color: #C7B299;
+  vertical-align: middle;
+}
+
+.topping-button span {
+  font-size: 18px;
+  font-family: Helvetica;
+  color: black;
+  line-height: normal;
+  text-align: center;
+  margin: auto;
+}
+
+#payment {
+  width: 100%;
+  margin: auto;
+  height: 215px;
+  display: inline-block;
+  background-color: #999999;
+  border: 3px solid black;
+}
+
+#card-payments {
+
+}
+
+#money-section {
+  float: right;
+  display: inline-block;
+  width: 23%;
+  height: 100%;
+}
+
+#amount {
+  display: flex;
+  float: left;
+  width: 400px;
+  height: 100px;
+  padding: 10px 10px;
+  margin: 10px 7px;
+  border: 3px solid black;
+  background-color: #E6E6E6;
+  vertical-align: middle;
+}
+
+#amount span {
+  font-size: 64px;
+  font-family: Helvetica;
+  color: black;
+  line-height: normal;
+  text-align: center;
+}
+
+.payment-button {
+  display: flex;
+  float: left;
+  width: 120px;
+  height: 60px;
+  padding: 10px 10px;
+  margin: 5px 5px;
+  border: 3px solid black;
+  background-color: #E6E6E6;
+  vertical-align: middle;
+}
+
+.payment-button span {
+  font-size: 20px;
+  font-family: Helvetica;
+  color: black;
+  line-height: normal;
+  text-align: center;
+  margin: auto;
+}
+
+#cash-register {
+  display: inline-block;
+  width: 50%;
+  float: right;
+}
+
+#money-buttons {
+  display: inline-block;
+  width: 40%;
+}
+
+#number-buttons {
+  display: inline-block;
+  width: 50%;
+}
+
+.debug {
+    position: fixed;
+    top: 5px;
+    left: 5px;
+}

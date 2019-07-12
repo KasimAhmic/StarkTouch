@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>StarkTouch POS</title>
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+    <div id="top-bar">
+      <div class="top-bar-button">
+        <span>CANCEL<br>ORDER</span>
+      </div>
+      <div class="top-bar-button">
+        <span>NEW<br>ORDER</span>
+      </div>
+      <img src="stlogo.png" alt="StarkTouch Logo">
+    </div>
+    <div id="shopping-cart">
+      <span id="cart-title">Cart</span>
+      <div class="cart-wrapper">
+          <ul id="cart">
+            <!-- Populated by addToCart() in index.js -->
+          </ul>
+      </div>
+      <div class="totals">
+          <ul>
+              <li>Subtotal:<span id="subtotal">$0.00</span></li>
+              <li>Tax:<span id="tax">$0.00</span></li>
+              <li>Total:<span id="total">$0.00</span></li>
+          </ul>
+      </div>
+    </div>
+    <div id="menu">
+      <div id="menu-wrapper">
+        <div id="Entrees">
+          <!-- Populated by createMenuItems() in index.js -->
+        </div>
+        <div id="Sides">
+          <!-- Populated by createMenuItems() in index.js -->
+        </div>
+        <div id="Drinks">
+          <!-- Populated by createMenuItems() in index.js -->
+        </div>
+        <div id="Desserts">
+          <!-- Populated by createMenuItems() in index.js -->
+        </div>
+        <div id="confirmation">
+          <!-- Populated by createMenuItems() in index.js -->
+        </div>
+        <div id="toppings">
+          <!-- Populated by selectToppings() in index.js -->
+        </div>
+      </div>
+    </div>
+    <div id="payment">
+      <div id="card-payments">
+        <!-- Populated by processPayment() in index.js -->
+      </div>
+      <div id="money-section">
+        <div id="amount">
+          <span>$0.00</span>
+        </div>
+        <div class="payment-button" id="cancel-button"><span>CANCEL</span></div>
+        <div class="payment-button" id="confirm-amount"><span>CONFIRM</span></div>
+        <div class="payment-button" id="open-button"><span>OPEN</span></div>
+      </div>
+      <div id="cash-register">
+        <div id="money-buttons">
+          <div class="payment-button"><span>$1</span></div>
+          <div class="payment-button"><span>$5</span></div>
+          <div class="payment-button"><span>$10</span></div>
+          <div class="payment-button"><span>$20</span></div>
+          <div class="payment-button"><span>.00</span></div>
+          <div class="payment-button"><span>.</span></div>
+        </div>
+        <div id="number-buttons">
+          <div class="payment-button"><span>1</span></div>
+          <div class="payment-button"><span>2</span></div>
+          <div class="payment-button"><span>3</span></div>
+          <div class="payment-button"><span>4</span></div>
+          <div class="payment-button"><span>5</span></div>
+          <div class="payment-button"><span>6</span></div>
+          <div class="payment-button"><span>7</span></div>
+          <div class="payment-button"><span>8</span></div>
+          <div class="payment-button"><span>9</span></div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script src="index.js"></script>
+</html>
