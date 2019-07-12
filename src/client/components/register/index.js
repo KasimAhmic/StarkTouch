@@ -12,9 +12,34 @@ function init() {
     config = ipcRenderer.sendSync('request-config');
     menu = JSON.parse(ipcRenderer.sendSync('getMenu'));
 
+    createTopButtons();
     createMenuItems();
-    createPaymentButtons();
+    createPaymentButtons(false);
 }
+
+function createTopButtons() {
+    var mainMenu = document.getElementById('main-menu');
+        mainMenu.addEventListener('click', function() {
+            ipcRenderer.sendSync('load-main-menu');
+        });
+    var resetOrder = document.getElementById('reset-order');
+        resetOrder.addEventListener('click', function() {
+            toppingList = [];
+            shoppingCart = [];
+            updateCart();
+            createMenuItems();
+        });
+    var creditCard = document.getElementById('money-type');
+        creditCard.addEventListener('click', function() {
+            if (this.style.opacity == 1.0) {
+                this.style.opacity = 0.5;
+                createPaymentButtons(true);
+            } else {
+                this.style.opacity = 1.0;
+                createPaymentButtons(false);
+            }
+        });
+  }
 
 // Adds event listeners to menu items
 function createMenuItems() {
@@ -30,7 +55,7 @@ function createMenuItems() {
         menuToppings.innerHTML = '';
     var confirmation = document.getElementById('confirmation');
         confirmation.innerHTML = '';
-        
+
     for (var i = 0; i <= 7; i++) {
         var menuItem = menu[0].items[i];
         var entree = document.createElement('div');
@@ -138,17 +163,47 @@ function updateToppings(answer, topping) {
 }
 
 // Adds event listeners to the payment buttons
-function createPaymentButtons() {
-    var amountPaying = 0.0;
+function createPaymentButtons(cardOption) {
+    var confirmButton = document.getElementById('confirm-amount');
+    var paymentDiv = document.getElementById('card-payments');
+        paymentDiv.innerHTML = '';
+    // If customer would like to pay with a credit card.
+    if (cardOption) {
+        paymentDiv.innerHTML = `
+            <div id="dropin-wrapper">
+                <div id="checkout-message"></div>
+                <div id="dropin-container"></div>
+            </div>
+        `;
+        //Adds braintree dropin to payment screen
+        braintree.dropin.create({
+            authorization: 'sandbox_kt2ct7tw_4vbx9dbhxsyjqq62', // tokenization_key will need to be modified for future merchants
+            container: '#dropin-container',
+            card: {
+                overrides: {
+                    fields: {
+                        number: {
+                            placeholder: "**** **** **** ****" // Fix for symbols bug
+                        }
+                    }
+                }
+            }
+        }, function (createErr, instance) {
+            // Only allow ordering when braintree is setup
+            confirmButton.addEventListener('click', function() {
+                submitOrder(shoppingCart, instance);
+            });
+        });
+    }
+    var amountPaying = '';
     var amountDiv = document.getElementById('amount').getElementsByTagName('span')[0];
     var cancelButton = document.getElementById('cancel-button');
         cancelButton.addEventListener('click', function() {
-            amountPaying = 0.0;
+            amountPaying = '';
             amountDiv.innerText = '$0.00';
         });
-    var confirmButton = document.getElementById('confirm-amount');
         confirmButton.addEventListener('click', function() {
-            processPayment();
+            submitOrder(shoppingCart);
             openRegister();
         });
     var openButton = document.getElementById('open-button');
@@ -157,27 +212,45 @@ function createPaymentButtons() {
         });
     var moneyButtons = document.getElementById('money-buttons').getElementsByClassName('payment-button');
         moneyButtons[0].addEventListener('click', function() {
-            amountPaying += 1;
-            amountDiv.innerText = '$' + amountPaying.toFixed(2);
+            if (isNaN(parseFloat(amountPaying))) {
+                amountPaying = '0';
+            }
+            var temp = parseFloat(amountPaying) + 1.0;
+            amountPaying = temp.toFixed(2).toString();
+            amountDiv.innerText = '$' + amountPaying;
         });
         moneyButtons[1].addEventListener('click', function() {
-            amountPaying += 5;
-            amountDiv.innerText = '$' + amountPaying.toFixed(2);
+            if (isNaN(parseFloat(amountPaying))) {
+                amountPaying = '0';
+            }
+            var temp = parseFloat(amountPaying) + 5.0;
+            amountPaying = temp.toFixed(2).toString();
+            amountDiv.innerText = '$' + amountPaying;
         });
         moneyButtons[2].addEventListener('click', function() {
-            amountPaying += 10;
-            amountDiv.innerText = '$' + amountPaying.toFixed(2);
+            if (isNaN(parseFloat(amountPaying))) {
+                amountPaying = '0';
+            }
+            var temp = parseFloat(amountPaying) + 10.0;
+            amountPaying = temp.toFixed(2).toString();
+            amountDiv.innerText = '$' + amountPaying;
         });
         moneyButtons[3].addEventListener('click', function() {
-            amountPaying += 20;
-            amountDiv.innerText = '$' + amountPaying.toFixed(2);
+            if (isNaN(parseFloat(amountPaying))) {
+                amountPaying = '0';
+            }
+            var temp = parseFloat(amountPaying) + 20.0;
+            amountPaying = temp.toFixed(2).toString();
+            amountDiv.innerText = '$' + amountPaying;
         });
         moneyButtons[4].addEventListener('click', function() {
+            amountPaying = parseFloat(amountPaying);
             amountPaying = Math.floor(amountPaying);
-            amountDiv.innerText = '$' + amountPaying.toFixed(2);
+            amountPaying = amountPaying.toFixed(2).toString();
+            amountDiv.innerText = '$' + amountPaying;
         });
         moneyButtons[5].addEventListener('click', function() {
-            amountPaying = amountPaying.toString() + '.';
+            amountPaying = amountPaying + '.';
             amountDiv.innerText = '$' + amountPaying;
         });
     var numberButtons = document.getElementById('number-buttons').getElementsByClassName('payment-button');
@@ -191,20 +264,13 @@ function createPaymentButtons() {
     document.addEventListener('keypress', function(e) {
         var key = parseInt(e.key);
         if (key <= 9 && key >= 0) {
-            amountPaying = '';
             amountPaying += e.key;
             amountDiv.innerText = '$' + amountPaying;
         } else if (e.key == '.') {
-            amountPaying = amountPaying.toString() + '.';
+            amountPaying = amountPaying + '.';
             amountDiv.innerText = '$' + amountPaying;
         }
     });
-}
-
-// Processes Payment
-function processPayment() {
-    // TO-DO: Create functionality to process payment
-    submitOrder(shoppingCart);
 }
 
 function openRegister() {
@@ -332,18 +398,43 @@ function calculateTotals() {
 }
 
 // Submits order to the server
-function submitOrder(cart) {
+function submitOrder(cart, braintreeInstance) {
     [subtotal, tax, total] = calculateTotals();
     var name = document.getElementById('name-form').value;
-    ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total);
+
+    if (braintreeInstance === undefined) {
+        ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total);
+    } else {
+        // Requests credit card payment method via braintree dropin
+        braintreeInstance.requestPaymentMethod(function (requestPaymentMethodErr, payload) {
+
+            braintreeInstance.teardown(function (teardownErr) {
+                if (teardownErr) {
+                    console.error('Could not tear down Drop-in UI!');
+                } else {
+                    console.info('Drop-in UI has been torn down!');
+                }
+            });
+            // Only send request if the payment was successful
+            if (requestPaymentMethodErr) {
+                console.error(requestPaymentMethodErr);
+                return;
+            }
+            ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total, payload.nonce);
+        });
+    }
 }
 
-ipcRenderer.on('submitOrderResponse', (event, res) => {
+ipcRenderer.on('submitOrderResponse', (event, res, success) => {
     console.log(res);
 
-    setTimeout(function() {
-        ipcRenderer.send('load-kiosk');
-    }, 5000);
+    if (success) {
+        setTimeout(function() {
+            ipcRenderer.send('load-register');
+        }, 5000);
+    } else {
+        alert('Payment declined.');
+    }
 });
 
 // Helper Functions
