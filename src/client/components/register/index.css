@@ -1,6 +1,6 @@
 #top-bar {
   width: 100%;
-  height: 110px;
+  height: 100px;
   margin: auto;
   background-color: #2E3192;
   display: inline-block;
@@ -36,10 +36,10 @@
 
 #shopping-cart {
   width: 25%;
-  height: 580px;
+  height: 560px;
   float: left;
   background-color: #E6E6E6;
-  border: 3px solid black;
+  border-right: 3px solid black;
 }
 
 #cart-title {
@@ -121,7 +121,7 @@
 
 #menu {
   width: 75%;
-  height: 580px;
+  height: 560px;
   float: right;
   background-color: #B3B3B3;
 }
@@ -243,14 +243,16 @@
 #payment {
   width: 100%;
   margin: auto;
-  height: 215px;
+  height: 250px;
   display: inline-block;
   background-color: #999999;
   border: 3px solid black;
 }
 
 #card-payments {
-
+  display: inline-block;
+  float: left;
+  bottom: 25px;
 }
 
 #money-section {
@@ -263,8 +265,8 @@
 #amount {
   display: flex;
   float: left;
-  width: 400px;
-  height: 100px;
+  width: 380px;
+  height: 75px;
   padding: 10px 10px;
   margin: 10px 7px;
   border: 3px solid black;
@@ -273,11 +275,27 @@
 }
 
 #amount span {
-  font-size: 64px;
+  font-size: 48px;
   font-family: Helvetica;
   color: black;
   line-height: normal;
   text-align: center;
+}
+
+#name-form {
+  display: flex;
+  float: left;
+  width: 355px;
+  height: 40px;
+  padding: 5px 10px;
+  margin: 10px 7px;
+  border: 3px solid black;
+  background-color: #E6E6E6;
+  vertical-align: middle;
+  font-size: 40px;
+  font-family: Helvetica;
+  color: black;
+  line-height: normal;
 }
 
 .payment-button {
@@ -307,6 +325,12 @@
   float: right;
 }
 
+#dropin-container {
+  max-height: 210px;
+  margin: auto;
+  margin-top: -30px;
+}
+
 #money-buttons {
   display: inline-block;
   width: 40%;
@@ -314,11 +338,37 @@
 
 #number-buttons {
   display: inline-block;
-  width: 50%;
+  width: 40%;
 }
 
-.debug {
-    position: fixed;
-    top: 5px;
-    left: 5px;
+#number-buttons > div {
+  width: 100px;
+  height: 50px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 14px;
+}
+::-webkit-scrollbar:horizontal {
+    height: 14px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.4);
+    border: 4px solid transparent;
+    background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: rgba(0,0,0,0.2);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    border: 4px solid transparent;
+    background-clip: content-box;
 }

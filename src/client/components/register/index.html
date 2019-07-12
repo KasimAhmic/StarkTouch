@@ -8,16 +8,19 @@
   </head>
   <body>
     <div id="top-bar">
-      <div class="top-bar-button">
-        <span>CANCEL<br>ORDER</span>
+      <div class="top-bar-button" id="main-menu">
+        <span>MAIN<br>MENU</span>
       </div>
-      <div class="top-bar-button">
-        <span>NEW<br>ORDER</span>
+      <div class="top-bar-button" id="reset-order">
+        <span>RESET<br>ORDER</span>
+      </div>
+      <div class="top-bar-button" id="money-type">
+        <span>CREDIT<br>CARD</span>
       </div>
       <img src="stlogo.png" alt="StarkTouch Logo">
     </div>
     <div id="shopping-cart">
-      <span id="cart-title">Cart</span>
+      <span id="cart-title">ORDER</span>
       <div class="cart-wrapper">
           <ul id="cart">
             <!-- Populated by addToCart() in index.js -->
@@ -61,6 +64,11 @@
         <div id="amount">
           <span>$0.00</span>
         </div>
+        <div id="name">
+          <form action="index.html" method="post">
+            <input id="name-form" type="text" name="name" value="">
+          </form>
+        </div>
         <div class="payment-button" id="cancel-button"><span>CANCEL</span></div>
         <div class="payment-button" id="confirm-amount"><span>CONFIRM</span></div>
         <div class="payment-button" id="open-button"><span>OPEN</span></div>
@@ -84,9 +92,11 @@
           <div class="payment-button"><span>7</span></div>
           <div class="payment-button"><span>8</span></div>
           <div class="payment-button"><span>9</span></div>
+          <div class="payment-button"><span>0</span></div>
         </div>
       </div>
     </div>
+    <script src="lib/braintree.js"></script>
+    <script src="index.js"></script>
   </body>
-  <script src="index.js"></script>
 </html>
