@@ -1,6 +1,6 @@
 {
     "global": {
-        "componentToLaunch": "register"
+        "componentToLaunch": "kiosk"
     },
     "kiosk": {
         "currentTab": "0"

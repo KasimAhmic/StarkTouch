@@ -1,11 +1,16 @@
-# Connection file #
-###################
+# Auth files #
+##############
 connection.js
+braintree.json
 
 # HTTPS Certs #
 ###############
 *.cert
 *.key
+
+# Binaries #
+############
+/bin
 
 # OS generated files #
 ######################

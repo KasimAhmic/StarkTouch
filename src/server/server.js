@@ -20,7 +20,7 @@ https.createServer({key: readFileSync('./secure/server.key'), cert: readFileSync
 });
 
 app.get('/', function(req, res) {
-    res.send('Hello World!');
+    res.end('Welcome to Stark Touch Systems!');
 });
 
 app.post('/submitOrder', function(req, res) {

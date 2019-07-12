@@ -1,11 +1,11 @@
 {
   "name": "starktouchserver",
-  "version": "0.5.0",
-  "description": "Backend server for StarkTouch POS system.",
+  "version": "1.0.0",
+  "description": "Backend server for the StarkTouch POS system.",
   "main": "server.js",
+  "bin": "server.js",
   "scripts": {
-    "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ."
   },
   "author": "Kasim Ahmic",
   "license": "AGPL-3.0",
