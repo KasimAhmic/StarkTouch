@@ -11,16 +11,28 @@
     "author": "Kasim Ahmic",
     "license": "AGPL-3.0",
     "dependencies": {
-        "braintree": "^2.18.0"
+        "braintree": "^2.18.0",
+        "request": "^2.88.0"
     },
     "devDependencies": {
-        "electron": "^5.0.1"
+        "electron": "^5.0.1",
+        "electron-builder": "^21.0.15"
     },
     "build": {
         "appId": "com.avengers.starktouch",
         "productName": "StarkTouch Client",
         "mac": {
             "category": "public.app-category.utilities"
+        },
+        "extraResources": [
+            {
+                "from": "./resources",
+                "to": ".",
+                "filter": ["config.json", "braintree.json"]
+            }
+        ],
+        "directories": {
+            "output": "../../dist"
         }
     }
 }

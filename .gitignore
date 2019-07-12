@@ -8,9 +8,10 @@ braintree.json
 *.cert
 *.key
 
-# Binaries #
-############
+# Directories #
+###############
 /bin
+/dist
 
 # OS generated files #
 ######################

@@ -9,8 +9,8 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-let configFile = JSON.parse(readFileSync('./config.json'));
-let braintreeConfig = JSON.parse(readFileSync('./braintree.json'));
+let configFile = JSON.parse(readFileSync('./resources/config.json'));
+let braintreeConfig = JSON.parse(readFileSync('./resources/braintree.json'));
 
 var gateway = new braintree.BraintreeGateway({
     environment: braintree.Environment.Sandbox,
@@ -46,7 +46,7 @@ function createWindow () {
     })
 
     // Open the DevTools
-    win.webContents.openDevTools();
+    //win.webContents.openDevTools();
 
     // Emitted when the window is closed.
     win.on('closed', () => {
