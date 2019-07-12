@@ -18,6 +18,7 @@
     },
     "build": {
         "appId": "com.avengers.starktouch",
+        "productName": "StarkTouch Client",
         "mac": {
             "category": "public.app-category.utilities"
         }
