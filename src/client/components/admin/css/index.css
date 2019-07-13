@@ -1,6 +1,8 @@
 body {
   width: 100%;
   background-color: #f2f2f2;
+
+  overflow-x: hidden;
 }
 
 div#menu-bar {
@@ -65,18 +67,36 @@ div.menu-icon span {
 
 .aggregator {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 3rem;
+  max-width: 450px;
+  margin: auto;
+}
+
+.aggregateBy-dropdown {
+  left: -5px;
+  position: relative;
+}
+
+.create-area input, .create-area textarea, .create-area select, .aggregator input, .aggregator select {
+  width: 100%;
+  margin: 5px;
+  box-sizing: border-box;
 }
 
 #aggregateBy {
-  height: 24px;
+  
 }
 
 #aggregate {
-  height: 24px;
+  
+}
+
+#aggregationResults {
+  font-size: 32px;
+  text-align: center;
 }
 
 .aggregateBy-dropdown {
@@ -117,7 +137,7 @@ div.menu-icon span {
   width: 100%;		
 }		
 .itemDelete {		
-  text-align: right;		
+  text-align: left;		
   flex: 4;		
   cursor: pointer;		
   vertical-align: top;		
@@ -125,6 +145,19 @@ div.menu-icon span {
   padding: 4px;		
   font-size: 22px;		
   font-family: Arial, Helvetica, sans-serif;		
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #29abe2;
+  padding: 5px;
+  border-right: 1px solid #1c769c;
+  border-bottom: 1px solid #1c769c;
+  border-bottom-right-radius: 8px;
+  font: 400 18px Raleway;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.50);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.50)
 }		
 .itemName {		
   flex: 4;		
@@ -134,4 +167,119 @@ div.menu-icon span {
 .itemPrice {		
   flex: 1;		
   color: lime;		
+}
+
+.itemButton {
+  position: relative;
+  display: inline-block;
+  width: 210px;
+  height: 210px;
+  margin: 10px;
+  border: 1px solid #1c769c;
+  border-radius: 8px;
+  background-position: 50% 50%;
+  background-size: cover;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(179, 153, 153, 0.5),
+              0 0 5px rgba(0,0,0,0.25);
+}
+.list-item-price {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #29abe2;
+  padding: 5px;
+  border-left: 1px solid #1c769c;
+  border-bottom: 1px solid #1c769c;
+  border-bottom-left-radius: 8px;
+  font: 400 18px Raleway;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.50);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.50)
+}
+.list-item-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: table-cell;
+  background: #29abe2;
+  padding: 0 0px;
+  border-top: 1px solid #1c769c;
+  border-radius: 0 0 7px 7px;
+  box-sizing: border-box;
+  font: 400 18px Raleway;
+  color: #fff;
+  text-align: center;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.50);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.50),
+              inset 0 0 0 1px rgba(255,255,255,0.5)
+}
+
+button {
+  display: inline-block;
+  padding: 10px;
+  background: #29abe2;
+  border: none;
+  border-bottom: 1px solid #1c769c;
+  border-right: 1px solid #1c769c;
+  box-sizing: border-box;
+  font: 32px Raleway;
+  color: #fff;
+  text-align: center;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.50);
+}
+
+input, select, textarea {
+  position: relative;
+  height: 50px;
+  border-radius: 5px;
+  border: 3px solid #999999;
+  font: 32px Raleway;
+  text-align: center;
+}
+
+.admin-tabs {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+
+  position: absolute;
+  transition: .3s;
+  left: 0;
+}
+
+.admin-tab {
+  flex: 1;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.admin-tab-box {
+  width: 100%;
+  height: 80px;
+  display: flex;
+}
+
+.admin-tab-title {
+  cursor: pointer;
+
+  flex: 1;
+  height: 80px;
+  line-height: 80px;
+  background: #29abe2;
+  border: none;
+  border-bottom: 1px solid #1c769c;
+  border-right: 1px solid #1c769c;
+  box-sizing: border-box;
+  font: 32px Raleway;
+  color: #fff;
+  text-align: center;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.50);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

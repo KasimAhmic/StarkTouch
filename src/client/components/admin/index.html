@@ -10,70 +10,87 @@
     <div id="menu-bar">
       <img src="logo.png" alt="logo">
     </div>
-    <div id="sqlBox" class="sql-box">
-      <input id="sqlBoxInput" type="text" placeholder="Search orders"/>
-      <button id="sqlBoxSearch">Search</button>
-    </div>
-    <div id="results">
-      
-    </div>
-    <div class="aggregator">
-      <div class="aggregateBy-dropdown">
-        <select id="aggregateBy">
-          <option value="completionTime">
-            Average Order Completion Time
-          </option>
-          <option value="completionOrderTime">
-            Average Completion Time for an Order Item
-          </option>
-        </select>
 
-        <!-- Hide by default -->
-        <div id="aggregateByOrder" style="display: none;">
-          <select id="aggregateTable">
-            <option value="dessert">Dessert</option>
-            <option value="drink">Drink</option>
-            <option value="entree">Entree</option>
-            <option value="side">Side</option>
-          </select>
-          <input type="text" id="aggregateSearch" placeholder="Search Items"/>
+    <div class="admin-tab-box">
+        <div class="admin-tab-title" data-tab="0">Search</div>
+        <div class="admin-tab-title" data-tab="1">Stats</div>
+        <div class="admin-tab-title" data-tab="2">Create</div>
+    </div>
+    
+    <div class="admin-tabs" id="admin-tabs">
+      <div class="admin-tab" id="tab-search">
+          <div id="sqlBox" class="sql-box">
+            <input id="sqlBoxInput" type="text" placeholder="Search orders"/>
+            <button id="sqlBoxSearch">Search</button>
+          </div>
+          <div id="results">
+            
+          </div>
+      </div>
+
+      <div class="admin-tab" id="tab-stats">
+            <div class="aggregator">
+              <div class="aggregateBy-dropdown">
+                <select id="aggregateBy">
+                  <option value="completionTime">
+                    Average Order Completion Time
+                  </option>
+                  <option value="completionOrderTime">
+                    Average Completion Time for an Order Item
+                  </option>
+                </select>
+
+                <!-- Hide by default -->
+                <div id="aggregateByOrder" style="display: none;">
+                  <select id="aggregateTable">
+                    <option value="dessert">Dessert</option>
+                    <option value="drink">Drink</option>
+                    <option value="entree">Entree</option>
+                    <option value="side">Side</option>
+                  </select>
+                  <input type="text" id="aggregateSearch" placeholder="Search Items"/>
+                </div>
+              </div>
+              <input id="dateStartInput" type="date"/>
+              <input id="dateEndInput" type="date"/>
+              <button id="aggregate">Aggregate</button>
+            </div>
+            <div id="aggregationResults">
+
+            </div>
+      </div>
+
+      <div class="admin-tab" id="tab-create">
+          <div id="menu-screen">
+            <div class="menu-icon" id="burgerStats">
+              <span>Burgers Sold</span><label id="entreeAmount"></label>
+            </div>
+            <div class="menu-icon" id="drinkStats">
+              <span>Drinks Sold</span><label id="drinkAmount"></label>
+            </div>
+            <div class="menu-icon" id="sideStats">
+              <span>Sides Sold</span><label id="sideAmount"></label>
+            </div>
+            <div class="menu-icon" id="dessertStats">
+              <span>Desserts Sold</span><label id="dessertAmount"></label>
+            </div>
+          </div>
+          <div class="create-area">
+              <select id="itemTable">
+                <option value="dessert">Dessert</option>
+                <option value="drink">Drink</option>
+                <option value="entree">Entree</option>
+                <option value="side">Side</option>
+              </select>
+              <input type="text" id="itemName" placeholder="Item Name" />
+              <textarea id="itemDesc" placeholder="Item Description"></textarea>
+              <input type="number" id="itemCalories" placeholder="Item Calories" />
+              <input type="number" id="itemStock" placeholder="Item Stock" />
+              <input type="number" id="itemCost" placeholder="Item Cost" />
+              <br>
+              <button id="create">Add Item</button>
+          </div>
         </div>
-      </div>
-      <input id="dateStartInput" type="date"/>
-      <input id="dateEndInput" type="date"/>
-      <button id="aggregate">Aggregate</button>
-    </div>
-    <div id="aggregationResults">
-
-    </div>
-    <div id="menu-screen">
-      <div class="menu-icon" id="burgerStats">
-        <span>Burgers Sold</span><label id="entreeAmount"></label>
-      </div>
-      <div class="menu-icon" id="drinkStats">
-        <span>Drinks Sold</span><label id="drinkAmount"></label>
-      </div>
-      <div class="menu-icon" id="sideStats">
-        <span>Sides Sold</span><label id="sideAmount"></label>
-      </div>
-      <div class="menu-icon" id="dessertStats">
-        <span>Desserts Sold</span><label id="dessertAmount"></label>
-      </div>
-    </div>
-    <div class="create-area">
-        <select id="itemTable">
-          <option value="dessert">Dessert</option>
-          <option value="drink">Drink</option>
-          <option value="entree">Entree</option>
-          <option value="side">Side</option>
-        </select>
-        <input type="text" id="itemName" placeholder="Item Name" />
-        <textarea id="itemDesc" placeholder="Item Description"></textarea>
-        <input type="number" id="itemCalories" placeholder="Item Calories" />
-        <input type="number" id="itemStock" placeholder="Item Stock" />
-        <input type="number" id="itemCost" placeholder="Item Cost" />
-        <br>
-        <button id="create">Add Item</button>
     </div>
     <script src="index.js"></script>
   </body>

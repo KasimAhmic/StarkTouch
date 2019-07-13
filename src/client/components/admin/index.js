@@ -53,13 +53,12 @@ function search(queryString) {
         // Add our row data
         rowElement.innerHTML = `
             <div class="itemDelete" data-item="${row["side_id"]}" data-type="${row.type}">X</div>
-            <div class="itemData">		
-                <div class="itemName">	
-                    ${row.description}	
-                </div>		
-                <div class="itemPrice">	
-                    $${row["side_cost"]}
-                </div>		
+
+            <div class="list-item-name">
+                ${row.description}	
+            </div>
+            <div class="list-item-price">
+                $${row["side_cost"]}
             </div>
         `;
         rowElement.style.backgroundImage = "url('../kiosk/images/items/" + (row.type.charAt(0).toUpperCase() + row.type.slice(1)) + "s/" + row.description + ".jpg')";
@@ -152,3 +151,9 @@ document.getElementById("create").addEventListener("click", function() {
     alert(response.message);
 });
 
+
+document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("admin-tab-title")) {
+        document.querySelector("#admin-tabs").style.left = "-" + (parseInt(e.target.getAttribute("data-tab") * 100)) + "%";
+    }
+}, true);

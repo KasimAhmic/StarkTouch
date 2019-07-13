@@ -1,6 +1,6 @@
 {
     "global": {
-        "componentToLaunch": "kiosk"
+        "componentToLaunch": "admin"
     },
     "kiosk": {
         "currentTab": "0"
