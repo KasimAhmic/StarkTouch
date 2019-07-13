@@ -100,11 +100,6 @@ ipcMain.on('getMenu', (event) => {
 });
 
 // Create event handlers for new page requests
-ipcMain.on('load-settings', (event) => {
-    // NOT DONE YET
-    win.loadFile('components/kiosk/settings.html');
-    event.returnValue = null;
-});
 ipcMain.on('load-kiosk', (event) => {
     win.loadFile('components/kiosk/welcome.html');
     event.returnValue = null;
@@ -114,7 +109,6 @@ ipcMain.on('load-menu', (event) => {
     event.returnValue = null;
 });
 ipcMain.on('load-register', (event) => {
-    // NOT DONE YET
     win.loadFile('components/register/index.html');
     event.returnValue = null;
 });
@@ -138,13 +132,20 @@ ipcMain.on('load-emp-consolidate', (event) => {
     win.loadFile('components/employee-consolidation/index.html');
     event.returnValue = null;
 });
+ipcMain.on('load-emp-register', (event) => {
+    win.loadFile('components/register/index.html');
+    event.returnValue = null;
+});
 ipcMain.on('load-cust-consolidate', (event) => {
     win.loadFile('components/consolidation/index.html');
     event.returnValue = null;
 });
 ipcMain.on('load-manager', (event) => {
-    // NOT DONE YET
-    win.loadFile('components/manager/index.html');
+    win.loadFile('components/admin/index.html');
+    event.returnValue = null;
+});
+ipcMain.on('load-main-menu', (event) => {
+    win.loadFile('components/main menu/index.html');
     event.returnValue = null;
 });
 
@@ -326,7 +327,7 @@ ipcMain.on('search', (event, queryString) => {
 //Take aggregate message from client, relay to server
 ipcMain.on('aggregate', (event, type, start, end, table, aggSearch) => {
     console.log("DEBUG: Sending aggregation request to server: " + type + "|" + start + "|" + end);
-    
+
     var options = {
         method: 'GET',
         url: configFile.server.serverURL + '/aggregate',
@@ -371,7 +372,7 @@ ipcMain.on("deleteItem", (event, type, id) => {
         }
     };
 
-    request(options, function (err, response, body) {		
+    request(options, function (err, response, body) {
         if (err) throw err;
         console.log(body);
         event.returnValue=JSON.parse(body);
