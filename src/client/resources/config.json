@@ -10,6 +10,6 @@
         "type": "drink"
     },
     "server": {
-        "serverURL": "https://127.0.0.1:3000"
+        "serverURL": "https://localhost:3000"
     }
 }

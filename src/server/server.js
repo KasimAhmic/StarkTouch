@@ -10,13 +10,11 @@ const config = JSON.parse(readFileSync('./config.json'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-
-http.createServer(app).listen(80, function() {
-    console.log('HTTP server started on port 3000.');
-});
 https.createServer({key: readFileSync('./secure/server.key'), cert: readFileSync('./secure/server.cert')}, app).listen(3000, function() {
     console.log('HTTPS server started on port 3000.')
+});
+http.createServer(app).listen(3001, function() {
+    console.log('HTTP server started on port 3001.');
 });
 
 app.get('/', function(req, res) {

@@ -504,34 +504,37 @@ function submitOrder(cart, braintreeInstance) {
 
     // Requests credit card payment method via braintree dropin
     braintreeInstance.requestPaymentMethod(function (requestPaymentMethodErr, payload) {
-        
-        braintreeInstance.teardown(function (teardownErr) {
-            if (teardownErr) {
-                console.error('Could not tear down Drop-in UI!');
-            } else {
-                console.info('Drop-in UI has been torn down!');
-            }
-        });
-        // Only send request if the payment was successful
+        var result = ipcRenderer.sendSync('verifyPayment', total, payload);
+
         if (requestPaymentMethodErr) {
             console.error(requestPaymentMethodErr);
+            //alert(requestPaymentMethodErr); //Results in an error that causes page to hang
             return;
         }
-        ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total, payload.nonce);
+        if (result == true) {
+            braintreeInstance.teardown(function (teardownErr) {
+                if (teardownErr) {
+                    console.error('Could not tear down Drop-in UI!');
+                } else {
+                    console.info('Drop-in UI has been torn down!');
+                }
+            });
+            document.querySelector('#checkout-message').innerHTML = ('<h1 class="payment-notice">Success</h1><p>Transaction successful.</p>');
+            ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total);
+        } else {
+            document.querySelector('[data-braintree-id="methods"]').remove();
+            document.querySelector('#checkout-message').innerHTML = ('<p class="payment-notice">Error: The card is not valid</p>');
+        }
     });
 }
 
-ipcRenderer.on('submitOrderResponse', (event, res, success) => {
+ipcRenderer.on('submitOrderResponse', (event, res) => {
     var res = JSON.parse(res);
 
-    if (success) {
-        createFinalScreen(res.name, res.orderNumber);
-        setTimeout(function() {
-            ipcRenderer.send('load-kiosk');
-        }, 5000);
-    } else {
-        alert('Payment declined.');
-    }
+    createFinalScreen(res.name, res.orderNumber);
+    setTimeout(function() {
+        ipcRenderer.send('load-kiosk');
+    }, 5000);
 });
 
 // Leave this function for educational purposes

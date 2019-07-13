@@ -339,3 +339,9 @@ body {
     margin: auto;
     margin-top: 75px;
 }
+.braintree-large-button, .payment-notice {
+    font: 32px Raleway;
+}
+.payment-notice {
+    margin-top: 60px;
+}

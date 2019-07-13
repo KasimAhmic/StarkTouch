@@ -148,7 +148,38 @@ ipcMain.on('load-manager', (event) => {
     event.returnValue = null;
 });
 
-ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total, nonce) => {
+ipcMain.on('verifyPayment', (event, total, payload) => {
+    // Create a braintree sale for the total order amount
+    if (payload == undefined) {
+        event.returnValue = 'Invalid card.'
+    } else {
+        gateway.transaction.sale({
+            amount: total,
+            paymentMethodNonce: payload.nonce,
+            options: {
+                submitForSettlement: true
+            }
+        }, function (err, result) {
+            if (err) {
+                console.error(err);
+                event.returnValue = err;
+                return;
+            }
+            if (result.success) {
+                console.log('Transaction ID: ' + result.transaction.id);
+                // Send the transaction ID to the server
+                //options.form.transactionID = result.transaction.id;
+
+                event.returnValue = true;
+            } else {
+                console.error(result.message);
+                event.returnValue = result.message;
+            }
+        });
+    }
+});
+
+ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
     var options = {
         method: 'POST',
         url: configFile.server.serverURL + '/submitOrder',
@@ -162,31 +193,9 @@ ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total, nonce) => {
         }
     };
 
-    // Create a braintree sale for the total order amount
-    gateway.transaction.sale({
-        amount: total,
-        paymentMethodNonce: nonce,
-        options: {
-            submitForSettlement: true
-        }
-    }, function (err, result) {
-        if (err) {
-            console.error(err);
-            return;
-        }
-        if (result.success) {
-            console.log('Transaction ID: ' + result.transaction.id);
-            // Send the transaction ID to the server
-            options.form.transactionID = result.transaction.id;
-
-            request(options, function (err, response, body) {
-                if (err) throw err;
-                event.reply('submitOrderResponse', body, true);
-            });
-        } else {
-            console.error(result.message);
-            event.reply('submitOrderResponse', body, false);
-        }
+    request(options, function (err, response, body) {
+        if (err) throw err;
+        event.reply('submitOrderResponse', body);
     });
 });
 
