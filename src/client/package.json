@@ -1,6 +1,6 @@
 {
     "name": "starktouch",
-    "version": "1.0.0",
+    "version": "1.5.0",
     "description": "StarkTouch is a POS technology that is simple to use, forward thinking, and scalable.",
     "main": "client.js",
     "scripts": {
@@ -28,7 +28,10 @@
             {
                 "from": "./resources",
                 "to": ".",
-                "filter": ["config.json", "braintree.json"]
+                "filter": [
+                    "config.json",
+                    "braintree.json"
+                ]
             }
         ],
         "directories": {

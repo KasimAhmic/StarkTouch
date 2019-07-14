@@ -1,6 +1,6 @@
 {
   "name": "starktouchserver",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "description": "Backend server for the StarkTouch POS system.",
   "main": "server.js",
   "bin": "server.js",
