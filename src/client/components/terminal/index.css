@@ -66,3 +66,11 @@ li[data-status="done"] {
     border-top: 1px solid #1c769c;
     font: 32px Raleway;
 }
+.toppings {
+    margin-left: 10px;
+    font-size: 20px;
+}
+.toppings li {
+    padding: 0;
+    border: none;
+}

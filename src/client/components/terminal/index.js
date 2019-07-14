@@ -27,9 +27,9 @@ function generateColumns(maxCols) {
 
     ipcRenderer.send('getIncompleteOrder', 'main');
 }
-
+var orders;
 ipcRenderer.on('getIncompleteOrderResponse', (event, res) => {
-    var orders = JSON.parse(res);
+    orders = JSON.parse(res);
 
     document.querySelectorAll('.order-column').forEach((element, index) => {
         if (orders[index] != undefined) {
@@ -39,19 +39,50 @@ ipcRenderer.on('getIncompleteOrderResponse', (event, res) => {
             element.dataset.availability = 'unavailable';
 
             for (i = 0; i < orders[index].items.length; i++) {
+                var entreeIndex = i;
                 // Create list element and input the name of the item
-                var itemIndex = orders[index].items.length > 1 ? orders[index].items[i] : orders[index].items[0];
+                var itemIndex;
                 var item = document.createElement('li');
-                    item.dataset.status = 'not-in-progress';
-                    item.dataset.itemIndex = itemIndex;
-                    item.className = 'item';
-                    item.id = 'item-' + i + '-' + orders[index].orderId + '-' + itemIndex;
-                    item.innerHTML = menu[terminalMenuIndex].items[itemIndex - 1].description;
-                    item.addEventListener('click', function() {
-                        updateOrder(this.id);
-                    });
+                if (config.terminal.type == 'entree') {
+                    itemIndex = orders[index].items.length > 1 ? orders[index].items[i].entree_ordered : orders[index].items[0].entree_ordered;
+                        item.dataset.status = 'not-in-progress';
+                        item.dataset.itemIndex = itemIndex;
+                        item.className = 'item';
+                        item.id = 'item-' + i + '-' + orders[index].orderId + '-' + itemIndex + '-' + orders[index].items[i].ordered_entree_id;
+                        item.innerHTML = menu[terminalMenuIndex].items[itemIndex].description;
+                        item.addEventListener('click', function() {
+                            updateOrder(this.id);
+                        });
+                } else {
+                    itemIndex = orders[index].items.length > 1 ? orders[index].items[i] : orders[index].items[0];
+                        item.dataset.status = 'not-in-progress';
+                        item.dataset.itemIndex = itemIndex;
+                        item.className = 'item';
+                        item.id = 'item-' + i + '-' + orders[index].orderId + '-' + itemIndex;
+                        item.innerHTML = menu[terminalMenuIndex].items[itemIndex[config.terminal.type + '_ordered'] - 1].description;
+                        item.addEventListener('click', function() {
+                            updateOrder(this.id);
+                        });
+                }
 
                 element.querySelector('.list').appendChild(item); // Append the item to the list
+                
+                if (config.terminal.type == 'entree') {
+                    var toppingsArray = orders[index].toppings;
+                    var toppingsContainer = document.createElement('ul');
+                        toppingsContainer.className = 'toppings';
+                    for (x = 0; x < toppingsArray.length; x++) {
+                        var topping = document.createElement('li');
+                            topping.id = 'topping-' + toppingsArray[x].topping + '-' + orders[index].items[i].ordered_entree_id;
+                            topping.innerHTML = '- ' + menu['toppings'][0].filter(top => top.toppings_id == toppingsArray[x].topping)[0].topping_desc;
+                        if (toppingsArray[x].ordered_entree_id == orders[index].items[i].ordered_entree_id) {
+                            toppingsContainer.appendChild(topping);
+                        }
+                        if (document.getElementById('item-' + i + '-' + orders[index].orderId + '-' + itemIndex + '-' + orders[index].items[i].ordered_entree_id) != null) {
+                            document.getElementById('item-' + i + '-' + orders[index].orderId + '-' + itemIndex + '-' + orders[index].items[i].ordered_entree_id).appendChild(toppingsContainer);
+                        }
+                    }
+                }
             }
 
             // Create the done button
@@ -75,11 +106,17 @@ function updateOrder(item) {
 
     if (element.dataset.status == 'not-in-progress') {
         element.dataset.status = 'in-progress';
+        element.querySelectorAll('li').forEach((item) => {
+            item.dataset.status = 'in-progress';
+        });
     } else if (element.dataset.status == 'in-progress') {
         element.dataset.status = 'done';
+        element.querySelectorAll('li').forEach((item) => {
+            item.dataset.status = 'done';
+        });
     }
 
-    var elementList = element.parentElement.querySelectorAll('li');
+    var elementList = element.parentElement.querySelectorAll('li.item');
 
     for (i = 0; i < elementList.length; i++) {
         if (elementList[i].dataset.status == 'done') {
@@ -100,6 +137,7 @@ ipcRenderer.on('completeOrderResponse', (event, res) => {
         completedOrder.querySelector('button').remove();
 });
 
+var incompleteOrders;
 ipcRenderer.on('checkForUpdatesResponse', (event, res) => {
     var openColumns = document.querySelectorAll('[data-availability="available"]');
     if (openColumns.length > 0) {
@@ -110,7 +148,7 @@ ipcRenderer.on('checkForUpdatesResponse', (event, res) => {
             }
         });
         var additionalOrdersSet = new Set();
-        var incompleteOrders = JSON.parse(res);
+        incompleteOrders = JSON.parse(res);
 
         for (o = 0; o < openColumns.length; o++) {
             for (i = 0; i < incompleteOrders.length; i++) {
@@ -125,17 +163,48 @@ ipcRenderer.on('checkForUpdatesResponse', (event, res) => {
                 openColumns[o].querySelector('.order-number span').textContent = additionalOrdersArr[o].orderNumber;
 
                 additionalOrdersArr[o].items.forEach((item, index) => {
-                    var itemIndex = additionalOrdersArr[o].items.length > 1 ? additionalOrdersArr[o].items[index] : additionalOrdersArr[o].items[0];
                     var listItem = document.createElement('li');
+                    var itemIndex;
+                    if (config.terminal.type == 'entree') {
+                        itemIndex = additionalOrdersArr[o].items.length > 1 ? additionalOrdersArr[o].items[index].entree_ordered : additionalOrdersArr[o].items[0].entree_ordered;
+                        listItem.dataset.status = 'not-in-progress';
+                        listItem.dataset.itemIndex = itemIndex;
+                        listItem.className = 'item';
+                        listItem.id = 'item-' + i + '-' + additionalOrdersArr[o].orderId + '-' + itemIndex + '-' + additionalOrdersArr[o].items[index].ordered_entree_id;
+                        listItem.innerHTML = menu[terminalMenuIndex].items[itemIndex].description;
+                        listItem.addEventListener('click', function() {
+                            updateOrder(this.id);
+                        });
+                    } else {
+                        itemIndex = additionalOrdersArr[o].items.length > 1 ? additionalOrdersArr[o].items[index] : additionalOrdersArr[o].items[0];
                         listItem.dataset.status = 'not-in-progress';
                         listItem.dataset.itemIndex = itemIndex;
                         listItem.className = 'item';
                         listItem.id = 'item-' + index + '-' + additionalOrdersArr[o].orderId + '-' + itemIndex;
-                        listItem.innerHTML = menu[terminalMenuIndex].items[itemIndex - 1].description;
+                        listItem.innerHTML = menu[terminalMenuIndex].items[itemIndex[config.terminal.type + '_ordered'] - 1].description;
                         listItem.addEventListener('click', function() {
                             updateOrder(this.id);
                         });
+                    }
+                    
                     openColumns[o].querySelector('.list').appendChild(listItem);
+
+                    if (config.terminal.type == 'entree') {
+                        var toppingsArray = additionalOrdersArr[o].toppings;
+                        var toppingsContainer = document.createElement('ul');
+                            toppingsContainer.className = 'toppings';
+                        for (x = 0; x < toppingsArray.length; x++) {
+                            var topping = document.createElement('li');
+                                topping.id = 'topping-' + toppingsArray[x].topping + '-' + additionalOrdersArr[o].items[index].ordered_entree_id;
+                                topping.innerHTML = '- ' + menu['toppings'][0].filter(top => top.toppings_id == toppingsArray[x].topping)[0].topping_desc;
+                            if (toppingsArray[x].ordered_entree_id == additionalOrdersArr[o].items[index].ordered_entree_id) {
+                                toppingsContainer.appendChild(topping);
+                            }
+                            if (document.getElementById('item-' + i + '-' + additionalOrdersArr[o].orderId + '-' + itemIndex + '-' + additionalOrdersArr[o].items[index].ordered_entree_id) != null) {
+                                document.getElementById('item-' + i + '-' + additionalOrdersArr[o].orderId + '-' + itemIndex + '-' + additionalOrdersArr[o].items[index].ordered_entree_id).appendChild(toppingsContainer);
+                            }
+                        }
+                    }
                 });
 
                 var doneButton = document.createElement('button');

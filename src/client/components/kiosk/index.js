@@ -21,7 +21,7 @@ function init() {
 // Creates the category buttons at the top of the page
 function createCategoryButtons() {
     // Reads the categories from the config file
-    var categories = Object.keys(menu);
+    var categories = Object.keys(menu).splice(0, 4);
 
     for (i = 0; i < categories.length; i++) {
         var button = document.createElement('button');
@@ -87,7 +87,11 @@ function createItemButtons() {
 function selectToppings(entree) {
     var currentTab = Object.values(config.kiosk.currentTab);
     var itemDiv = document.getElementById('items');
-    var toppings = ['Lettuce', 'Tomato', 'Onion', 'Pickle', 'Jalapeno', 'Bacon', 'Ketchup', 'Mustard', 'Mayonnaise'];
+    //var toppings = ['Lettuce', 'Tomato', 'Onion', 'Pickle', 'Jalapeno', 'Bacon', 'Ketchup', 'Mustard', 'Mayonnaise'];
+    var toppings = [];
+    for (i = 0; i < menu["toppings"][0].length; i++) {
+        toppings.push({"name": menu["toppings"][0][i].topping_desc, "id": menu["toppings"][0][i].toppings_id});
+    }
 
     itemDiv.innerHTML = '';
     toppingList = [];
@@ -97,18 +101,19 @@ function selectToppings(entree) {
         var toppingButton = document.createElement('div');
             toppingButton.className = 'itemButton animated fadeInLeft faster';
             toppingButton.id = 'topping';
-            toppingButton.dataset.item = toppings[i];
+            toppingButton.dataset.item = topping.name;
+            toppingButton.dataset.toppingID = topping.id;
             toppingButton.dataset.target = i;
-            toppingButton.style.backgroundImage = 'url(\'images/items/Toppings/' + topping + '.jpg\')';
+            toppingButton.style.backgroundImage = 'url(\'images/items/Toppings/' + topping.name + '.jpg\')';
             toppingButton.addEventListener("click", function() {
                 if (this.style.opacity == 0.5) {
                     this.className = 'itemButton animated bounce fast';
                     this.style.opacity = 1.0;
-                    updateToppings(false, this.textContent);
+                    updateToppings(false, {name: this.textContent, id: this.dataset.toppingID});
                 } else {
                     this.className = 'itemButton animated bounce fast';
                     this.style.opacity = 0.5;
-                    updateToppings(true, this.textContent);
+                    updateToppings(true, {name: this.textContent, id: this.dataset.toppingID});
                 }
             });
             toppingButton.addEventListener('animationend', function() {
@@ -116,7 +121,7 @@ function selectToppings(entree) {
             });
         var itemName = document.createElement('span');
             itemName.className = 'list-item-name';
-            itemName.textContent = toppings[i];
+            itemName.textContent = topping.name;
 
         toppingButton.appendChild(itemName);
         itemDiv.appendChild(toppingButton);
@@ -453,7 +458,7 @@ function updateCart() {
                 itemToppings = document.createElement('span');
                 itemToppings.className = 'cart-item-name';
                 itemToppings.id = 'cart-item-topping';
-                itemToppings.innerHTML = '<br>' + shoppingCart[i].toppings[j];
+                itemToppings.innerHTML = '<br>' + shoppingCart[i].toppings[j].name;
                 entryContainer.appendChild(itemToppings);
             }
         }

@@ -42,6 +42,15 @@ app.post('/submitOrder', function(req, res) {
     for (i = 0; i < order.cart.length; i++) {
         var type = order.cart[i].type;
         sqlMid += `INSERT INTO ordered_${type} (order_stats_id, ${type}_ordered, ${type}_start) VALUES (@orderstats_id, '${order.cart[i].id}', '${new Date().toISOString().slice(0, 19).replace('T', ' ')}');`;
+
+        if (type == 'entree') {
+            if (order.cart[i].toppings.length > 0) {
+                var toppings = order.cart[i].toppings;
+                for (x = 0; x < toppings.length; x++) {
+                    sqlMid += `INSERT INTO toppings_ordered_entree (ordered_entree_id, toppings_code, qty_ordered, toppings_ordered_cost) VALUES ((SELECT MAX(ordered_entree_id) FROM ordered_entree WHERE order_stats_id = @orderstats_id), '${toppings[x].id}', 1, 0);`;
+                }
+            }
+        }
     }
 
     var finalSql = sqlStart + sqlMid + sqlEnd;
@@ -57,18 +66,19 @@ app.post('/submitOrder', function(req, res) {
 });
 
 app.get('/getMenu', function(req, res) {
-    var sql = `SELECT * FROM entree; SELECT * FROM side; SELECT * FROM drink; SELECT * from dessert;`
+    var sql = `SELECT * FROM entree; SELECT * FROM side; SELECT * FROM drink; SELECT * from dessert; SELECT * FROM toppings_entree;`;
 
     con.query(sql, function(err, result) {
         if (err) throw err;
 
         var parsedJSON = {}; // Create new object
 
-        for (i = 0; i < result.length; i++) {                           // Loop through result object
+        for (i = 0; i < result.length - 1; i++) {                       // Loop through result object
             var id = Object.keys(result[i][0])[0].slice(0,-3);          // Get the id column name
             var name = id.charAt(0).toUpperCase() + id.slice(1) + 's';  // Format the id
             parsedJSON[i] = {"name": name, "items": result[i]};         // Populate the previously created object
         }
+        parsedJSON["toppings"] = [result[result.length - 1]];
 
         res.end(JSON.stringify(parsedJSON));
     })
@@ -76,28 +86,66 @@ app.get('/getMenu', function(req, res) {
 
 app.get('/getIncompleteOrder', function(req, res) {
     var sql = `SELECT * FROM ordered_${req.body.type} WHERE ${req.body.type}_end IS NULL;`;
+    var orders = []
 
     con.query(sql, function(err, result) {
         if (err) throw err;
 
-        var orders = [];
         var currentOrder = null;
 
         for (i = 0; i < result.length; i++) {
             if (result[i].order_stats_id % 999 != currentOrder) {
-                orders.push({orderNumber: result[i].order_stats_id % 999, items: [], orderId: result[i].order_stats_id});
+                orders.push({orderNumber: result[i].order_stats_id % 999, items: [], orderId: result[i].order_stats_id, toppings: []});
             }
             currentOrder = result[i].order_stats_id % 999;
         }
         for (i = 0; i < result.length; i++) {
             for (x = 0; x < orders.length; x++) {
                 if (result[i].order_stats_id % 999 == orders[x].orderNumber) {
-                    orders[x].items.push(result[i][req.body.type + '_ordered']);
+                    orders[x].items.push({[req.body.type +'_ordered']: result[i][req.body.type + '_ordered'], ['ordered_' + req.body.type + '_id']: result[i]['ordered_' + req.body.type + '_id']});
                 }
             }
         }
+        if (req.body.type == 'entree') {
+            for (i = 0; i < orders.length; i++) {
+                sql += `SELECT * FROM toppings_ordered_entree WHERE ordered_entree_id IN (SELECT ordered_entree_id FROM ordered_entree WHERE order_stats_id = ${orders[i].orderNumber});`;
+            }
+            con.query(sql, function(subErr, subResult) {
+                if (subErr) throw subErr;
 
-        res.end(JSON.stringify(orders))
+                if (subResult.length > 0) {
+                    var entreeIDs = Object.values(subResult[0]).map(function(val) {
+                        return {entreeId: val.ordered_entree_id, orderNumber: val.order_stats_id}
+                    });
+
+                    var toppingsArray = [];
+                    for (i = 1; i < subResult.length; i++) {
+                        toppingsArray.push(Object.values(subResult[i]).map(function(val) {
+                            return {ordered_entree_id: val.ordered_entree_id, topping: val.toppings_code}
+                        }));
+                    }
+                    for (i = 0; i < toppingsArray.length; i++) {
+                        for (x = 0; x < toppingsArray[i].length; x++) {
+                            toppingsArray[i][x]['orderNumber'] = entreeIDs.filter(entry => entry.entreeId == toppingsArray[i][x].ordered_entree_id)[0].orderNumber;
+                        }
+                    }
+                    for (i = 0; i < orders.length; i++) {
+                        var ordersOrderNumber = orders[i].orderNumber;
+                        for (x = 0; x < toppingsArray.length; x++) {
+                            for (a = 0; a < toppingsArray[x].length; a++) {
+                                if (toppingsArray[x][a].orderNumber == ordersOrderNumber) {
+                                    orders[i].toppings.push(toppingsArray[x][a]);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                res.end(JSON.stringify(orders));
+            });
+        } else {
+            res.end(JSON.stringify(orders));
+        }
     });
 });
 
@@ -384,11 +432,3 @@ app.get('/viewRows', function(req, res) {
         res.end(JSON.stringify(result));
     });
 });
-
-//app.listen(3000, function(err) {
-//    if (err) {
-//        throw err;
-//    }
-//
-//    console.log('Server started on port 3000.');
-//});
