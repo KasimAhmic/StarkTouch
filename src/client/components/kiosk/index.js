@@ -509,7 +509,7 @@ function submitOrder(cart, braintreeInstance) {
 
     // Requests credit card payment method via braintree dropin
     braintreeInstance.requestPaymentMethod(function (requestPaymentMethodErr, payload) {
-        var result = ipcRenderer.sendSync('verifyPayment', total, payload);
+        var [result, id] = ipcRenderer.sendSync('verifyPayment', total, payload);
 
         if (requestPaymentMethodErr) {
             console.error(requestPaymentMethodErr);
@@ -525,7 +525,7 @@ function submitOrder(cart, braintreeInstance) {
                 }
             });
             document.querySelector('#checkout-message').innerHTML = ('<h1 class="payment-notice">Success</h1><p>Transaction successful.</p>');
-            ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total);
+            ipcRenderer.send('submitOrder', name, cart, subtotal, tax, total, id);
         } else {
             document.querySelector('[data-braintree-id="methods"]').remove();
             document.querySelector('#checkout-message').innerHTML = ('<p class="payment-notice">Error: The card is not valid</p>');

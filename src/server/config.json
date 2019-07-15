@@ -2,5 +2,11 @@
     "restaurant": {
         "id": 1,
         "zipcode": 33545
+    },
+    "database": {
+        "host": "",
+        "user": "",
+        "password": "",
+        "database": ""
     }
 }

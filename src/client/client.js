@@ -168,10 +168,8 @@ ipcMain.on('verifyPayment', (event, total, payload) => {
             }
             if (result.success) {
                 console.log('Transaction ID: ' + result.transaction.id);
-                // Send the transaction ID to the server
-                //options.form.transactionID = result.transaction.id;
 
-                event.returnValue = true;
+                event.returnValue = [true, result.transaction.id];
             } else {
                 console.error(result.message);
                 event.returnValue = result.message;
@@ -180,7 +178,7 @@ ipcMain.on('verifyPayment', (event, total, payload) => {
     }
 });
 
-ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
+ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total, id) => {
     var options = {
         method: 'POST',
         url: configFile.server.serverURL + '/submitOrder',
@@ -190,7 +188,8 @@ ipcMain.on('submitOrder', (event, name, cart, subtotal, tax, total) => {
             subtotal: subtotal,
             tax: tax,
             total: total,
-            dineIn: true
+            dineIn: true,
+            id: id
         }
     };
 

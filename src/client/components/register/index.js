@@ -124,23 +124,28 @@ function createMenuItems() {
 function selectToppings(entree) {
     toppingList = [];
     var menuToppings = document.getElementById('toppings');
-    var toppings = ['Lettuce', 'Tomato', 'Onion', 'Pickle', 'Jalapeno', 'Bacon', 'Ketchup', 'Mustard', 'Mayonnaise'];
+    //var toppings = ['Lettuce', 'Tomato', 'Onion', 'Pickle', 'Jalapeno', 'Bacon', 'Ketchup', 'Mustard', 'Mayonnaise'];
+    var toppings = [];
+    for (i = 0; i < menu["toppings"][0].length; i++) {
+        toppings.push({"name": menu["toppings"][0][i].topping_desc, "id": menu["toppings"][0][i].toppings_id});
+    }
 
     for (var i = 0; i < toppings.length; i++) {
         var topping = document.createElement('div');
             topping.className = 'topping-button';
-            topping.id = toppings[i];
+            topping.id = 'topping-' + toppings[i].id;
+            topping.dataset.toppingID = topping.id;
             topping.addEventListener("click", function() {
                 if (this.style.opacity == 0.5) {
                     this.style.opacity = 1.0;
-                    updateToppings(false, this.id);
+                    updateToppings(false, {name: this.textContent, id: this.dataset.toppingID});
                 } else {
                     this.style.opacity = 0.5;
-                    updateToppings(true, this.id);
+                    updateToppings(true, {name: this.textContent, id: this.dataset.toppingID});
                 }
             });
         var span = document.createElement('span');
-            span.textContent = toppings[i];
+            span.textContent = toppings[i].name;
         topping.appendChild(span);
         menuToppings.appendChild(topping);
     }
@@ -352,7 +357,7 @@ function updateCart() {
                 itemToppings = document.createElement('span');
                 itemToppings.className = 'cart-item-name';
                 itemToppings.id = 'cart-item-topping';
-                itemToppings.innerHTML = '<br>' + shoppingCart[i].toppings[j];
+                itemToppings.innerHTML = '<br>' + shoppingCart[i].toppings[j].name;
                 entryContainer.appendChild(itemToppings);
             }
         }

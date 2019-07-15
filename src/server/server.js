@@ -1,20 +1,27 @@
 const express = require('express');
 const https = require('https');
-const http = require('http');
 const bodyParser = require('body-parser');
 const app = express();
-const con = require('./secure/connection.js');
+const mysql = require('mysql');
 const { readFileSync } = require('fs');
 const config = JSON.parse(readFileSync('./config.json'));
+
+var con = mysql.createConnection({
+    host: config.database.host,
+    user: config.database.user,
+    password: config.database.password,
+    database: config.database.database,
+    multipleStatements  : true
+});
+con.connect(function(err) {
+    if (err) throw err;
+});
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 https.createServer({key: readFileSync('./secure/server.key'), cert: readFileSync('./secure/server.cert')}, app).listen(3000, function() {
     console.log('HTTPS server started on port 3000.')
-});
-http.createServer(app).listen(3001, function() {
-    console.log('HTTP server started on port 3001.');
 });
 
 app.get('/', function(req, res) {
@@ -29,11 +36,12 @@ app.post('/submitOrder', function(req, res) {
         "dineIn": req.body.dineIn,
         "subtotal": req.body.subtotal,
         "tax": req.body.tax,
-        "total": req.body.total
+        "total": req.body.total,
+        "id": req.body.id
     };
     var sqlStart = `SET autocommit = 0;
         START TRANSACTION;
-           INSERT INTO order_stats (restaurant_id, order_date, dine_in, pretax_total, tax_rate, grand_total) VALUES ('${config.restaurant.id}', '${new Date().toISOString().slice(0, 19).replace('T', ' ')}', '${order.dineIn ? 1 : 0}', ${order.subtotal}, ${order.tax}, ${order.total});
+           INSERT INTO order_stats (restaurant_id, order_date, dine_in, pretax_total, tax_rate, grand_total, transaction_id) VALUES ('${config.restaurant.id}', '${new Date().toISOString().slice(0, 19).replace('T', ' ')}', '${order.dineIn ? 1 : 0}', ${order.subtotal}, ${order.tax}, ${order.total}, '${order.id}');
            SELECT @orderstats_id := MAX(order_id)
            FROM order_stats;`;
     var sqlMid = ``;
@@ -432,3 +440,7 @@ app.get('/viewRows', function(req, res) {
         res.end(JSON.stringify(result));
     });
 });
+
+//app.post('/logTransactionID', function(req, res) {
+//    var sql = `INSERT INTO order_stats (transaction_id) VALUES ('${req.body.id}') WHERE `
+//});
