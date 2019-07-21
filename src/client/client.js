@@ -4,7 +4,7 @@ const { readFileSync } = require('fs');
 var request = require('request');
 var braintree = require('braintree');
 
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+//process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
